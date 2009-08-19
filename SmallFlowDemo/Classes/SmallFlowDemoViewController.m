@@ -6,29 +6,23 @@
 //  Copyright holtwick.it 2009. All rights reserved.
 //
 
+/* 
+  
+ TODO:
+ 
+ - Images do not size to fit correctly in the small view
+ - I need to react on a single tap at the current item to jump to a detail view
+ - When nothing moves I need to display a 'play' button and a frame around the current item (image overlay)
+ - When the element is put inside a table view it is very picky about horizontal and vertical movements
+ 
+ */
+
 #import "SmallFlowDemoViewController.h"
 
 @implementation SmallFlowDemoViewController
 
 @synthesize smallOpenFlowView = smallOpenFlowView_;
 @synthesize titleLabel = titleLabel_;
-
-/*
-// The designated initializer. Override to perform setup that is required before the view is loaded.
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
-        // Custom initialization
-    }
-    return self;
-}
-*/
-
-/*
-// Implement loadView to create a view hierarchy programmatically, without using a nib.
-- (void)loadView {
-}
-*/
-
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
@@ -75,7 +69,7 @@
 // MARK: OpenFlowViewDelegate
 
 - (void)openFlowView:(AFOpenFlowView *)openFlowView selectionDidChange:(int)index {
-    NSLog(@"Selected", index);
+    // Set a title showing us which is the current cover shown
     [titleLabel_ setText:[NSString stringWithFormat:@"Item #%d", index]];
 }
 
