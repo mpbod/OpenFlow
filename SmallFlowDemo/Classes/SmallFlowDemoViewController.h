@@ -12,8 +12,10 @@
 @interface SmallFlowDemoViewController : UIViewController <AFOpenFlowViewDelegate> {
     XIBOUTLET AFOpenFlowView *smallOpenFlowView_;
     XIBOUTLET UILabel *titleLabel_;
+    XIBOUTLET UIView *overlayView_;
 }
 
+@property (nonatomic, retain) IBOutlet UIView *overlayView;
 @property (nonatomic, retain) IBOutlet AFOpenFlowView *smallOpenFlowView;
 @property (nonatomic, retain) IBOutlet UILabel *titleLabel;
 

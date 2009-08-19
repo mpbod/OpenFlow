@@ -21,6 +21,7 @@
 
 @implementation SmallFlowDemoViewController
 
+@synthesize overlayView = overlayView_;
 @synthesize smallOpenFlowView = smallOpenFlowView_;
 @synthesize titleLabel = titleLabel_;
 
@@ -61,6 +62,7 @@
 }
 
 - (void)dealloc{
+    [overlayView_ release];
     [smallOpenFlowView_ release];
     [titleLabel_ release];
     [super dealloc];
@@ -68,9 +70,19 @@
 
 // MARK: OpenFlowViewDelegate
 
-- (void)openFlowView:(AFOpenFlowView *)openFlowView selectionDidChange:(int)index {
+- (void)openFlowView:(AFOpenFlowView *)openFlowView animationDidBegin:(int)index {
     // Set a title showing us which is the current cover shown
     [titleLabel_ setText:[NSString stringWithFormat:@"Item #%d", index]];
+}
+
+- (void)openFlowViewAnimationDidBegin:(AFOpenFlowView *)openFlowView {
+    [overlayView_ setAlpha:0.0];
+}
+
+- (void)openFlowViewAnimationDidEnd:(AFOpenFlowView *)openFlowView {
+    ANIMATION_BEGIN(0.75)
+    [overlayView_ setAlpha:1.0];
+    ANIMATION_END
 }
 
 @end

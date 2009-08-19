@@ -17,3 +17,28 @@
 #define XATOMIC 
 #define XREADONLY
 #define XIBOUTLET
+
+// Animation stuff
+
+#define ANIMATION_BEGIN(secs) \
+[UIView beginAnimations:nil context:nil]; \
+[UIView setAnimationDuration:secs]; \
+[UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
+
+#define ANIMATION_END \
+[UIView commitAnimations];     
+
+#define ANIMATION_NEXT(secs, next) \
+[UIView setAnimationDelegate:self]; \
+[UIView setAnimationDidStopSelector:@selector(next)]; \
+[UIView commitAnimations]; } \
+- (void)next { \
+[UIView beginAnimations:nil context:nil]; \
+[UIView setAnimationDuration:secs]; \
+[UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
+
+#define ANIMATION_LAST(next) \
+[UIView setAnimationDelegate:self]; \
+[UIView setAnimationDidStopSelector:@selector(next)]; \
+[UIView commitAnimations]; } \
+- (void)next { \
