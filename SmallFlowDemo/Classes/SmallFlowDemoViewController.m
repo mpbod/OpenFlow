@@ -70,7 +70,7 @@
 
 // MARK: OpenFlowViewDelegate
 
-- (void)openFlowView:(AFOpenFlowView *)openFlowView animationDidBegin:(int)index {
+- (void)openFlowView:(AFOpenFlowView *)openFlowView selectionDidChange:(int)index {
     // Set a title showing us which is the current cover shown
     [titleLabel_ setText:[NSString stringWithFormat:@"Item #%d", index]];
 }
@@ -83,6 +83,14 @@
     ANIMATION_BEGIN(0.75)
     [overlayView_ setAlpha:1.0];
     ANIMATION_END
+}
+
+- (void)openFlowView:(AFOpenFlowView *)openFlowView didTap:(int)index {
+    NSLog(@"Tapped on %d", index);
+}
+
+- (void)openFlowView:(AFOpenFlowView *)openFlowView didDoubleTap:(int)index {
+    NSLog(@"Tapped twice on %d", index);
 }
 
 @end

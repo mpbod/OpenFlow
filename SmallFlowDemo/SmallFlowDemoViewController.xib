@@ -8,7 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="6"/>
+			<integer value="9"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -41,7 +41,7 @@
 						<int key="NSvFlags">274</int>
 						<string key="NSFrame">{{20, 20}, {280, 160}}</string>
 						<reference key="NSSuperview" ref="774585933"/>
-						<object class="NSColor" key="IBUIBackgroundColor" id="412251712">
+						<object class="NSColor" key="IBUIBackgroundColor">
 							<int key="NSColorSpace">1</int>
 							<bytes key="NSRGB">MCAwIDAAA</bytes>
 						</object>
@@ -55,8 +55,11 @@
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
-						<string key="IBUIText">This demo shows the integration of OpenFlow in a small individual UIView</string>
-						<reference key="IBUITextColor" ref="412251712"/>
+						<string key="IBUIText">This demo shows the use of OpenFlow in a small individual view and some more enhancements</string>
+						<object class="NSColor" key="IBUITextColor">
+							<int key="NSColorSpace">1</int>
+							<bytes key="NSRGB">MC4yIDAuMiAwLjIAA</bytes>
+						</object>
 						<nil key="IBUIHighlightedColor"/>
 						<int key="IBUIBaselineAdjustment">1</int>
 						<float key="IBUIMinimumFontSize">1.000000e+01</float>
@@ -80,7 +83,7 @@
 						<float key="IBUIMinimumFontSize">1.000000e+01</float>
 						<int key="IBUITextAlignment">1</int>
 					</object>
-					<object class="IBUIImageView" id="376926365">
+					<object class="IBUIImageView" id="789089566">
 						<reference key="NSNextResponder" ref="774585933"/>
 						<int key="NSvFlags">256</int>
 						<string key="NSFrame">{{120, 60}, {80, 80}}</string>
@@ -136,7 +139,7 @@
 					<object class="IBCocoaTouchOutletConnection" key="connection">
 						<string key="label">overlayView</string>
 						<reference key="source" ref="372490531"/>
-						<reference key="destination" ref="376926365"/>
+						<reference key="destination" ref="789089566"/>
 					</object>
 					<int key="connectionID">14</int>
 				</object>
@@ -171,7 +174,7 @@
 							<reference ref="228437581"/>
 							<reference ref="186396021"/>
 							<reference ref="764131312"/>
-							<reference ref="376926365"/>
+							<reference ref="789089566"/>
 						</object>
 						<reference key="parent" ref="702005375"/>
 					</object>
@@ -195,7 +198,7 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">13</int>
-						<reference key="object" ref="376926365"/>
+						<reference key="object" ref="789089566"/>
 						<reference key="parent" ref="774585933"/>
 					</object>
 				</object>

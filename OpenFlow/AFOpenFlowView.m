@@ -271,6 +271,8 @@ const static CGFloat kReflectionFraction = 0.85;
 		
 	isSingleTap = ([touches count] == 1);
     
+    // Begin of animation 
+    // XXX This is more the beginning of touch as animation...
     if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidBegin:)])
         [self.viewDelegate openFlowViewAnimationDidBegin:self];
 }
@@ -310,9 +312,26 @@ const static CGFloat kReflectionFraction = 0.85;
 	[self centerOnSelectedCover:YES];
 	
 	// And send the delegate the newly selected cover message.
-	if (beginningCover != selectedCoverView.number)
+	if (beginningCover == selectedCoverView.number) {
+        // Tap?
+        if([[event allTouches] count]==1) {
+            UITouch *touch = [[event allTouches] anyObject];    
+            if ([touch tapCount] == 1) {
+                if ([self.viewDelegate respondsToSelector:@selector(openFlowView:didTap:)])
+                    [self.viewDelegate openFlowView:self didTap:selectedCoverView.number];
+            } else if ([touch tapCount] == 2) {
+                if ([self.viewDelegate respondsToSelector:@selector(openFlowView:didDoubleTap:)])
+                    [self.viewDelegate openFlowView:self didDoubleTap:selectedCoverView.number];            
+            }   
+            
+        }    
+    } else {
 		if ([self.viewDelegate respondsToSelector:@selector(openFlowView:selectionDidChange:)])
 			[self.viewDelegate openFlowView:self selectionDidChange:selectedCoverView.number];
+    }
+    
+    // End of animation 
+    // XXX This is more the end of touch as animation...
     if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidEnd:)])
         [self.viewDelegate openFlowViewAnimationDidEnd:self];    
 }
