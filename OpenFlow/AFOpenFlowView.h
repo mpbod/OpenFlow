@@ -32,14 +32,14 @@
 
 @interface AFOpenFlowView : UIView {
 	id <AFOpenFlowViewDataSource>	dataSource;
-	id <AFOpenFlowViewDelegate>	viewDelegate;
+	id <AFOpenFlowViewDelegate>     viewDelegate;
 	NSMutableSet					*offscreenCovers;
 	NSMutableDictionary				*onscreenCovers;
 	NSMutableDictionary				*coverImages;
 	NSMutableDictionary				*coverImageHeights;
 	UIImage							*defaultImage;
 	CGFloat							defaultImageHeight;
-
+    
 	UIScrollView					*scrollView;
 	int								lowerVisibleCover;
 	int								upperVisibleCover;
@@ -73,6 +73,8 @@
 @protocol AFOpenFlowViewDelegate <NSObject>
 @optional
 - (void)openFlowView:(AFOpenFlowView *)openFlowView selectionDidChange:(int)index;
+- (void)openFlowViewAnimationDidBegin:(AFOpenFlowView *)openFlowView;
+- (void)openFlowViewAnimationDidEnd:(AFOpenFlowView *)openFlowView;
 @end
 
 @protocol AFOpenFlowViewDataSource <NSObject>

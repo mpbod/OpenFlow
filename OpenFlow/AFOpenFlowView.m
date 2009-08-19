@@ -270,6 +270,9 @@ const static CGFloat kReflectionFraction = 0.85;
 		isDoubleTap = YES;
 		
 	isSingleTap = ([touches count] == 1);
+    
+    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidBegin:)])
+        [self.viewDelegate openFlowViewAnimationDidBegin:self];
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -310,6 +313,8 @@ const static CGFloat kReflectionFraction = 0.85;
 	if (beginningCover != selectedCoverView.number)
 		if ([self.viewDelegate respondsToSelector:@selector(openFlowView:selectionDidChange:)])
 			[self.viewDelegate openFlowView:self selectionDidChange:selectedCoverView.number];
+    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidEnd:)])
+        [self.viewDelegate openFlowViewAnimationDidEnd:self];    
 }
 
 - (void)centerOnSelectedCover:(BOOL)animated {
