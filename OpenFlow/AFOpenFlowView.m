@@ -62,7 +62,7 @@ const static CGFloat kReflectionFraction = 0.85;
 	self.multipleTouchEnabled = NO;
 	self.userInteractionEnabled = YES;
 	self.autoresizesSubviews = YES;
-	self.layer.position=CGPointMake(self.frame.size.width / 2, self.frame.size.height / 2);
+	self.layer.position=CGPointMake(self.frame.origin.x + self.frame.size.width / 2, self.frame.origin.y + self.frame.size.height / 2);
 	
 	// Initialize the visible and selected cover range.
 	lowerVisibleCover = upperVisibleCover = -1;

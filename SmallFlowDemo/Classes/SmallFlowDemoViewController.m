@@ -11,6 +11,7 @@
 @implementation SmallFlowDemoViewController
 
 @synthesize smallOpenFlowView = smallOpenFlowView_;
+@synthesize titleLabel = titleLabel_;
 
 /*
 // The designated initializer. Override to perform setup that is required before the view is loaded.
@@ -40,7 +41,8 @@
         [smallOpenFlowView_ setImage:[UIImage imageNamed:imageName] forIndex:i];
         [imageName release];
     }
-    [smallOpenFlowView_ setNumberOfImages:30];     
+    [smallOpenFlowView_ setNumberOfImages:30];   
+    [smallOpenFlowView_ setViewDelegate:self];
 }
 
 
@@ -66,7 +68,15 @@
 
 - (void)dealloc{
     [smallOpenFlowView_ release];
+    [titleLabel_ release];
     [super dealloc];
+}
+
+// MARK: OpenFlowViewDelegate
+
+- (void)openFlowView:(AFOpenFlowView *)openFlowView selectionDidChange:(int)index {
+    NSLog(@"Selected", index);
+    [titleLabel_ setText:[NSString stringWithFormat:@"Item #%d", index]];
 }
 
 @end

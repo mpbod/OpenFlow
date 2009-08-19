@@ -9,11 +9,13 @@
 #import "XBase.h"
 #import "AFOpenFlowView.h"
 
-@interface SmallFlowDemoViewController : UIViewController {
+@interface SmallFlowDemoViewController : UIViewController <AFOpenFlowViewDelegate> {
     XIBOUTLET AFOpenFlowView *smallOpenFlowView_;
+    XIBOUTLET UILabel *titleLabel_;
 }
 
 @property (nonatomic, retain) IBOutlet AFOpenFlowView *smallOpenFlowView;
+@property (nonatomic, retain) IBOutlet UILabel *titleLabel;
 
 @end
 
