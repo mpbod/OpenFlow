@@ -9,11 +9,7 @@
 /* 
   
  TODO:
- 
- - Images do not size to fit correctly in the small view
- - I need to react on a single tap at the current item to jump to a detail view
- - When nothing moves I need to display a 'play' button and a frame around the current item (image overlay)
- - When the element is put inside a table view it is very picky about horizontal and vertical movements
+  - When the element is put inside a table view it is very picky about horizontal and vertical movements
  
  */
 
@@ -87,6 +83,7 @@
 
 - (void)openFlowView:(AFOpenFlowView *)openFlowView didTap:(int)index {
     NSLog(@"Tapped on %d", index);
+    [[[[UIAlertView alloc] initWithTitle:@"Info" message:[NSString stringWithFormat:@"You tapped on item #%d", index] delegate:nil cancelButtonTitle:@"Continue" otherButtonTitles:nil] autorelease] show];
 }
 
 - (void)openFlowView:(AFOpenFlowView *)openFlowView didDoubleTap:(int)index {

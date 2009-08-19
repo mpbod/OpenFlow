@@ -41,4 +41,4 @@
 [UIView setAnimationDelegate:self]; \
 [UIView setAnimationDidStopSelector:@selector(next)]; \
 [UIView commitAnimations]; } \
-- (void)next { \
+- (void)next {
