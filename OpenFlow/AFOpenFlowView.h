@@ -48,6 +48,9 @@
 	
 	AFItemView						*selectedCoverView;
 
+	NSDictionary					*flipViewShown;
+	UIView							*flippedContainerView;
+	
 	CATransform3D leftTransform, rightTransform;
 	
 	CGFloat halfScreenHeight;
@@ -57,16 +60,20 @@
 	Boolean isDoubleTap;
 	Boolean isDraggingACover;
 	CGFloat startPosition;
+	
 }
 
 @property (nonatomic, assign) id <AFOpenFlowViewDataSource> dataSource;
 @property (nonatomic, assign) id <AFOpenFlowViewDelegate> viewDelegate;
 @property (nonatomic, retain) UIImage *defaultImage;
 @property int numberOfImages;
+@property (nonatomic, retain, readonly) AFItemView *selectedCoverView;
 
 - (void)setSelectedCover:(int)newSelectedCover;
 - (void)centerOnSelectedCover:(BOOL)animated;
 - (void)setImage:(UIImage *)image forIndex:(int)index;
+- (void)flipSelectedToView:(UIView *)flipsideView;
+- (void)dismissFlippedSelection;
 
 @end
 

@@ -79,6 +79,11 @@ const static CGFloat kReflectionFraction = 0.85;
 	sublayerTransform.m34 = -0.01;
 	[scrollView.layer setSublayerTransform:sublayerTransform];
 	
+	flipViewShown = nil;
+	
+	flippedContainerView = [[UIView alloc] initWithFrame:self.frame];
+	[self addSubview:flippedContainerView];
+	
 	[self setBounds:self.frame];
 }
 
@@ -144,6 +149,8 @@ const static CGFloat kReflectionFraction = 0.85;
 	aCover.layer.position = newPosition;
 	
 	if (animated) {
+		[UIView setAnimationDelegate:self];
+		[UIView setAnimationDidStopSelector:@selector(layoutCoverAnimationDidStop:finished:context:)];
 		[UIView commitAnimations];
 	}
 }
@@ -173,7 +180,7 @@ const static CGFloat kReflectionFraction = 0.85;
 
 
 @implementation AFOpenFlowView
-@synthesize dataSource, viewDelegate, numberOfImages, defaultImage;
+@synthesize dataSource, viewDelegate, numberOfImages, defaultImage, selectedCoverView;
 
 #define COVER_BUFFER 6
 
@@ -200,6 +207,8 @@ const static CGFloat kReflectionFraction = 0.85;
 	
 	[onscreenCovers removeAllObjects];
 	[onscreenCovers release];
+	
+	[flipViewShown release];
 	
 	[super dealloc];
 }
@@ -301,6 +310,13 @@ const static CGFloat kReflectionFraction = 0.85;
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+	if (flipViewShown) {
+		if (isSingleTap) {
+			[self dismissFlippedSelection];
+		}
+		return;
+	}
+	
 	if (isSingleTap) {
 		// Which cover did the user tap?
 		CGPoint targetPoint = [[touches anyObject] locationInView:self];
@@ -332,8 +348,8 @@ const static CGFloat kReflectionFraction = 0.85;
     
     // End of animation 
     // XXX This is more the end of touch as animation...
-    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidEnd:)])
-        [self.viewDelegate openFlowViewAnimationDidEnd:self];    
+//    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidEnd:)])
+//        [self.viewDelegate openFlowViewAnimationDidEnd:self];    
 }
 
 - (void)centerOnSelectedCover:(BOOL)animated {
@@ -463,5 +479,81 @@ const static CGFloat kReflectionFraction = 0.85;
 	
 	selectedCoverView = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:newSelectedCover]];
 }
+
+- (void)flipSelectedToView:(UIView *)flipsideView {
+	// Save selected view state before animation
+	flipViewShown = [[NSMutableDictionary alloc] init];
+	[flipViewShown setValue:selectedCoverView.imageView forKey:@"imageView"];
+	[flipViewShown setValue:flipsideView forKey:@"flipsideView"];
+	
+	CGRect flippedViewFrame = CGRectMake(
+										 (flippedContainerView.frame.size.width-flipsideView.frame.size.width)/2,
+										 flippedContainerView.frame.size.height-flipsideView.frame.size.height,
+										 flipsideView.frame.size.width,
+										 flipsideView.frame.size.height);
+	flipsideView.frame = flippedViewFrame;
+	
+	double animationDuration = 0.8;
+	
+	// Animate flip of open flow image out of view
+	[UIView beginAnimations:nil context:NULL];
+	[UIView setAnimationDuration:animationDuration];
+	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft
+						   forView:selectedCoverView
+							 cache:YES];
+	[selectedCoverView.imageView removeFromSuperview];
+	[UIView commitAnimations];
+	
+	// Animate flip of flipped view into view
+	[UIView beginAnimations:nil context:NULL];
+	[UIView setAnimationDuration:animationDuration];
+	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft
+						   forView:flippedContainerView
+							 cache:YES];
+	[flippedContainerView addSubview:flipsideView];
+	[UIView commitAnimations];
+	
+}
+
+- (void)dismissFlippedSelection {
+	UIImageView *restoredImageView = [flipViewShown valueForKey:@"imageView"];
+	UIView *flipsideView = [flipViewShown valueForKey:@"flipsideView"];
+	
+	double animationDuration = 0.8;
+	
+	// Animate flip of flipped view out of view
+	[UIView beginAnimations:nil context:NULL];
+	[UIView setAnimationDuration:animationDuration];
+	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight
+						   forView:flippedContainerView
+							 cache:YES];
+	[flipsideView removeFromSuperview];
+	[UIView commitAnimations];
+	
+	// Animate flip of image view back into view
+	[UIView beginAnimations:nil context:NULL];
+	[UIView setAnimationDuration:animationDuration];
+	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight
+						   forView:selectedCoverView
+							 cache:YES];
+	[selectedCoverView addSubview:restoredImageView];
+	[UIView setAnimationDelegate:self];
+	[UIView setAnimationDidStopSelector:@selector(dismissFlippedAnimationDidStop:finished:context:)];
+	[UIView commitAnimations];
+	
+	flipViewShown = nil;
+}
+
+- (void)layoutCoverAnimationDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context {
+    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidEnd:)])
+        [self.viewDelegate openFlowViewAnimationDidEnd:self];    
+}
+
+- (void)dismissFlippedAnimationDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context {
+	// Same as layoutCoverAnimationDidStop: for now
+    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidEnd:)])
+        [self.viewDelegate openFlowViewAnimationDidEnd:self];    
+}
+
 
 @end
