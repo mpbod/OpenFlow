@@ -282,8 +282,11 @@ const static CGFloat kReflectionFraction = 0.85;
     
     // Begin of animation 
     // XXX This is more the beginning of touch as animation...
-    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidBegin:)])
-        [self.viewDelegate openFlowViewAnimationDidBegin:self];
+//    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidBegin:)])
+//        [self.viewDelegate openFlowViewAnimationDidBegin:self];
+	
+    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewScrollingDidBegin:)])
+        [self.viewDelegate openFlowViewScrollingDidBegin:self];
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -307,6 +310,9 @@ const static CGFloat kReflectionFraction = 0.85;
 		else
 			[self setSelectedCover:newCover];
 	}
+	
+    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidBegin:)])
+        [self.viewDelegate openFlowViewAnimationDidBegin:self];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -346,10 +352,9 @@ const static CGFloat kReflectionFraction = 0.85;
 			[self.viewDelegate openFlowView:self selectionDidChange:selectedCoverView.number];
     }
     
-    // End of animation 
-    // XXX This is more the end of touch as animation...
-//    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidEnd:)])
-//        [self.viewDelegate openFlowViewAnimationDidEnd:self];    
+    // End of scrolling 
+    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewScrollingDidEnd:)])
+        [self.viewDelegate openFlowViewScrollingDidEnd:self];    
 }
 
 - (void)centerOnSelectedCover:(BOOL)animated {

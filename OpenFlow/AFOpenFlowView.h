@@ -84,6 +84,8 @@
 - (void)openFlowView:(AFOpenFlowView *)openFlowView didDoubleTap:(int)index;
 - (void)openFlowViewAnimationDidBegin:(AFOpenFlowView *)openFlowView;
 - (void)openFlowViewAnimationDidEnd:(AFOpenFlowView *)openFlowView;
+- (void)openFlowViewScrollingDidBegin:(AFOpenFlowView *)openFlowView;
+- (void)openFlowViewScrollingDidEnd:(AFOpenFlowView *)openFlowView;
 @end
 
 @protocol AFOpenFlowViewDataSource <NSObject>
