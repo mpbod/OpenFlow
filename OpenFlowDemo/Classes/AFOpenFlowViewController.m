@@ -60,7 +60,8 @@
 }
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
-
+	[(AFOpenFlowView *)self.view reloadData];
+	
 	// Assume we're in the initial alert view.
 	if (buttonIndex == 0) {
 		// Use sample images, but load them all at once.
@@ -70,11 +71,7 @@
 			[(AFOpenFlowView *)self.view setImage:[UIImage imageNamed:imageName] forIndex:i];
 			[imageName release];
 		}
-		[(AFOpenFlowView *)self.view setNumberOfImages:30]; 
-	} else if (buttonIndex == 1) {
-		// Use sample images.
-		[(AFOpenFlowView *)self.view setNumberOfImages:30]; 
-	} 
+	}
 }
 
 - (void)imageDidLoad:(NSArray *)arguments {
@@ -90,6 +87,10 @@
 
 - (UIImage *)defaultImage {
 	return [UIImage imageNamed:@"default.png"];
+}
+
+- (NSInteger) numberOfImagesInOpenView:(AFOpenFlowView *)openFlowView {
+	return 30;
 }
 
 - (void)openFlowView:(AFOpenFlowView *)openFlowView requestImageForIndex:(int)index {
