@@ -56,6 +56,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0BE3D37511F839B8000D1FB6 /* AFOpenFlowViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFOpenFlowViewDelegate.h; sourceTree = "<group>"; };
+		0BE3D37611F83A17000D1FB6 /* AFOpenFlowViewDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFOpenFlowViewDataSource.h; sourceTree = "<group>"; };
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D3623240D0F684500981E51 /* AFOpenFlowAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFOpenFlowAppDelegate.h; sourceTree = "<group>"; };
 		1D3623250D0F684500981E51 /* AFOpenFlowAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFOpenFlowAppDelegate.m; sourceTree = "<group>"; };
@@ -209,6 +211,8 @@
 				8641EAC8103B3A4200D65BBF /* AFOpenFlowView.m */,
 				8641EAC9103B3A4200D65BBF /* AFUIImageReflection.h */,
 				8641EACA103B3A4200D65BBF /* AFUIImageReflection.m */,
+				0BE3D37511F839B8000D1FB6 /* AFOpenFlowViewDelegate.h */,
+				0BE3D37611F83A17000D1FB6 /* AFOpenFlowViewDataSource.h */,
 			);
 			name = OpenFlow;
 			path = ../OpenFlow;

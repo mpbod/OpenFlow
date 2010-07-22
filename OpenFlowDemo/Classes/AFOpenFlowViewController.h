@@ -24,6 +24,8 @@
  */
 #import <UIKit/UIKit.h>
 #import "AFOpenFlowView.h"
+#import "AFOpenFlowViewDataSource.h"
+#import "AFOpenFlowViewDelegate.h"
 
 
 @interface AFOpenFlowViewController : UIViewController <AFOpenFlowViewDataSource, AFOpenFlowViewDelegate> {
