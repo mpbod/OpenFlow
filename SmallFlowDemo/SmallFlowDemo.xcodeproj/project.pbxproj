@@ -348,6 +348,7 @@
 				GCC_PREFIX_HEADER = SmallFlowDemo_Prefix.pch;
 				INFOPLIST_FILE = "SmallFlowDemo-Info.plist";
 				PRODUCT_NAME = SmallFlowDemo;
+				SDKROOT = iphoneos4.0;
 			};
 			name = Debug;
 		};
