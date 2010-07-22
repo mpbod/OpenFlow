@@ -33,10 +33,9 @@
 - (id)initWithFrame:(CGRect)frame {
 	if (self = [super initWithFrame:frame]) {
 		self.opaque = YES;
-		self.backgroundColor = NULL;
 		verticalPosition = 0;
 		horizontalPosition = 0;
-		
+	
 		// Image View
 		imageView = [[UIImageView alloc] initWithFrame:frame];
 		imageView.opaque = YES;
