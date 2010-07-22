@@ -23,12 +23,12 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 #import <UIKit/UIKit.h>
-#import "AFItemView.h"
 #import <QuartzCore/QuartzCore.h>
 
+#import "AFItemView.h"
+#import "AFOpenFlowViewDelegate.h"
+#import "AFOpenFlowViewDataSource.h"
 
-@protocol AFOpenFlowViewDataSource;
-@protocol AFOpenFlowViewDelegate;
 
 @interface AFOpenFlowView : UIView {
 	id <AFOpenFlowViewDataSource>	dataSource;
@@ -60,7 +60,6 @@
 	Boolean isDoubleTap;
 	Boolean isDraggingACover;
 	CGFloat startPosition;
-	
 }
 
 @property (nonatomic, assign) id <AFOpenFlowViewDataSource> dataSource;
@@ -75,20 +74,4 @@
 - (void)flipSelectedToView:(UIView *)flipsideView;
 - (void)dismissFlippedSelection;
 
-@end
-
-@protocol AFOpenFlowViewDelegate <NSObject>
-@optional
-- (void)openFlowView:(AFOpenFlowView *)openFlowView selectionDidChange:(int)index;
-- (void)openFlowView:(AFOpenFlowView *)openFlowView didTap:(int)index;
-- (void)openFlowView:(AFOpenFlowView *)openFlowView didDoubleTap:(int)index;
-- (void)openFlowViewAnimationDidBegin:(AFOpenFlowView *)openFlowView;
-- (void)openFlowViewAnimationDidEnd:(AFOpenFlowView *)openFlowView;
-- (void)openFlowViewScrollingDidBegin:(AFOpenFlowView *)openFlowView;
-- (void)openFlowViewScrollingDidEnd:(AFOpenFlowView *)openFlowView;
-@end
-
-@protocol AFOpenFlowViewDataSource <NSObject>
-- (void)openFlowView:(AFOpenFlowView *)openFlowView requestImageForIndex:(int)index;
-- (UIImage *)defaultImage;
 @end

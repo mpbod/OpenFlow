@@ -89,11 +89,13 @@ const static CGFloat kReflectionFraction = 0.85;
 
 - (AFItemView *)coverForIndex:(int)coverIndex {
 	AFItemView *coverView = [self dequeueReusableCover];
-	if (!coverView)
+	
+	if (!coverView) {
 		coverView = [[[AFItemView alloc] initWithFrame:CGRectZero] autorelease];
+	}
 	
+	coverView.backgroundColor = self.backgroundColor;
 	coverView.number = coverIndex;
-	
 	return coverView;
 }
 
@@ -144,6 +146,7 @@ const static CGFloat kReflectionFraction = 0.85;
 		[UIView setAnimationBeginsFromCurrentState:YES];
 	}
 	
+	aCover.opaque = NO; 
 	aCover.layer.transform = newTransform;
 	aCover.layer.zPosition = newZPosition;
 	aCover.layer.position = newPosition;
