@@ -26,6 +26,7 @@
 @class AFOpenFlowView;
 
 @protocol AFOpenFlowViewDataSource <NSObject>
+- (NSInteger) numberOfImagesInOpenView:(AFOpenFlowView *)openFlowView; 
 - (void)openFlowView:(AFOpenFlowView *)openFlowView requestImageForIndex:(int)index;
 - (UIImage *)defaultImage;
 @end

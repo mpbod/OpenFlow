@@ -64,10 +64,17 @@
 
 @property (nonatomic, assign) id <AFOpenFlowViewDataSource> dataSource;
 @property (nonatomic, assign) id <AFOpenFlowViewDelegate> viewDelegate;
+
+@property (nonatomic, retain) NSMutableSet *offscreenCovers;
+@property (nonatomic, retain) NSMutableDictionary *onscreenCovers;
+@property (nonatomic, retain) NSMutableDictionary *coverImages;
+@property (nonatomic, retain) NSMutableDictionary *coverImageHeights;
+
 @property (nonatomic, retain) UIImage *defaultImage;
 @property int numberOfImages;
-@property (nonatomic, retain, readonly) AFItemView *selectedCoverView;
+@property (nonatomic, retain) AFItemView *selectedCoverView;
 
+- (void)reloadData; 
 - (void)setSelectedCover:(int)newSelectedCover;
 - (void)centerOnSelectedCover:(BOOL)animated;
 - (void)setImage:(UIImage *)image forIndex:(int)index;

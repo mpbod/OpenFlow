@@ -26,9 +26,11 @@
 #import "AFOpenFlowConstants.h"
 #import "AFUIImageReflection.h"
 
+#define COVER_BUFFER 6
 
 @interface AFOpenFlowView (hidden)
 
+- (void)resetDataState;
 - (void)setUpInitialState;
 - (AFItemView *)coverForIndex:(int)coverIndex;
 - (void)updateCoverImage:(AFItemView *)aCover;
@@ -39,19 +41,53 @@
 
 @end
 
-@implementation AFOpenFlowView (hidden)
+@implementation AFOpenFlowView
 
 const static CGFloat kReflectionFraction = 0.85;
 
-- (void)setUpInitialState {
+@synthesize dataSource; 
+@synthesize viewDelegate;
+@synthesize numberOfImages; 
+@synthesize defaultImage;
+@synthesize selectedCoverView;
+
+@synthesize offscreenCovers;
+@synthesize onscreenCovers;
+@synthesize coverImages;
+@synthesize coverImageHeights;
+
+- (void)dealloc {
+	self.dataSource = nil; 
+	self.viewDelegate = nil; 
+	self.defaultImage = nil; 
+	self.selectedCoverView = nil; 
+	
+	self.offscreenCovers = nil; 
+	self.onscreenCovers = nil;
+	self.coverImages = nil; 
+	self.coverImageHeights = nil; 
+	
+	[scrollView release];
+	[flipViewShown release];
+	
+	[super dealloc];
+}
+
+#pragma mark Hidden Implementation details
+
+- (void)resetDataState {
 	// Set up the default image for the coverflow.
 	self.defaultImage = [self.dataSource defaultImage];
 	
 	// Create data holders for onscreen & offscreen covers & UIImage objects.
-	coverImages = [[NSMutableDictionary alloc] init];
-	coverImageHeights = [[NSMutableDictionary alloc] init];
-	offscreenCovers = [[NSMutableSet alloc] init];
-	onscreenCovers = [[NSMutableDictionary alloc] init];
+	self.coverImages = [[NSMutableDictionary alloc] init];
+	self.coverImageHeights = [[NSMutableDictionary alloc] init];
+	self.offscreenCovers = [[NSMutableSet alloc] init];
+	self.onscreenCovers = [[NSMutableDictionary alloc] init];
+}
+
+- (void)setUpInitialState {
+	[self resetDataState]; 
 	
 	scrollView = [[UIScrollView alloc] initWithFrame:self.frame];
 	scrollView.userInteractionEnabled = NO;
@@ -179,13 +215,8 @@ const static CGFloat kReflectionFraction = 0.85;
 	
 	return aCover;
 }
-@end
 
-
-@implementation AFOpenFlowView
-@synthesize dataSource, viewDelegate, numberOfImages, defaultImage, selectedCoverView;
-
-#define COVER_BUFFER 6
+#pragma mark View Management 
 
 - (void)awakeFromNib {
 	[self setUpInitialState];
@@ -199,21 +230,8 @@ const static CGFloat kReflectionFraction = 0.85;
 	return self;
 }
 
-- (void)dealloc {
-	[defaultImage release];
-	[scrollView release];
-	
-	[coverImages release];
-	[coverImageHeights release];
-	[offscreenCovers removeAllObjects];
-	[offscreenCovers release];
-	
-	[onscreenCovers removeAllObjects];
-	[onscreenCovers release];
-	
-	[flipViewShown release];
-	
-	[super dealloc];
+- (void)viewDidAppear:(BOOL)animated {
+	[self reloadData];
 }
 
 - (void)setBounds:(CGRect)newSize {
@@ -264,6 +282,8 @@ const static CGFloat kReflectionFraction = 0.85;
 		[self layoutCover:aCover selectedCover:selectedCoverView.number animated:NO];
 	}
 }
+
+#pragma mark Touch management 
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
 	CGPoint startPoint = [[touches anyObject] locationInView:self];
@@ -363,6 +383,11 @@ const static CGFloat kReflectionFraction = 0.85;
 - (void)centerOnSelectedCover:(BOOL)animated {
 	CGPoint selectedOffset = CGPointMake(COVER_SPACING * selectedCoverView.number, 0);
 	[scrollView setContentOffset:selectedOffset animated:animated];
+}
+
+- (void)reloadData {
+	[self resetDataState];
+	self.numberOfImages = [self.dataSource numberOfImagesInOpenView:self];
 }
 
 - (void)setSelectedCover:(int)newSelectedCover {
