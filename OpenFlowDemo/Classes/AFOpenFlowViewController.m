@@ -38,10 +38,10 @@
 - (void)awakeFromNib {
 	loadImagesOperationQueue = [[NSOperationQueue alloc] init];
 	UIAlertView *openFlowImageSourceAlertView = [[UIAlertView alloc] initWithTitle:@"OpenFlow Demo Data Source" 
-																		   message:@"Would you like to download images from Flickr or use 30 sample images included with this project?" 
+																		   message:@"Sample Load method?" 
 																		  delegate:self 
-																 cancelButtonTitle:@"Samples (all at once)"
-																 otherButtonTitles:@"Samples (NSThread)", nil];
+																 cancelButtonTitle:@"All at once"
+																 otherButtonTitles:@"NSThread", nil];
 	[openFlowImageSourceAlertView show];
 	[openFlowImageSourceAlertView release];
 }
