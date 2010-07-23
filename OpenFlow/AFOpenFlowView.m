@@ -73,6 +73,17 @@ const static CGFloat kReflectionFraction = 0.85;
 	[super dealloc];
 }
 
+#pragma mark Accessor 
+
+- (void) setDataSource:(id <AFOpenFlowViewDataSource>)ds {
+	if (ds != dataSource) {
+		[ds retain]; 
+		[dataSource release];
+		dataSource = ds; 
+		[self reloadData];
+	}
+}
+
 #pragma mark Hidden Implementation details
 
 - (void)resetDataState {
@@ -230,22 +241,16 @@ const static CGFloat kReflectionFraction = 0.85;
 	return self;
 }
 
-- (void)viewDidAppear:(BOOL)animated {
-	[self reloadData];
-}
-
-- (void)setBounds:(CGRect)newSize {
-	[super setBounds:newSize];
-	
+- (void) layoutSubviews {
 	halfScreenWidth = self.bounds.size.width / 2;
 	halfScreenHeight = self.bounds.size.height / 2;
-
+	
 	int lowerBound = MAX(-1, selectedCoverView.number - COVER_BUFFER);
 	int upperBound = MIN(self.numberOfImages - 1, selectedCoverView.number + COVER_BUFFER);
-
+	
 	[self layoutCovers:selectedCoverView.number fromCover:lowerBound toCover:upperBound];
 	[self centerOnSelectedCover:NO];
-}
+}	
 
 - (void)setNumberOfImages:(int)newNumberOfImages {
 	numberOfImages = newNumberOfImages;
