@@ -103,6 +103,7 @@ const static CGFloat kReflectionFraction = 0.85;
 	scrollView = [[UIScrollView alloc] initWithFrame:self.frame];
 	scrollView.userInteractionEnabled = NO;
 	scrollView.multipleTouchEnabled = NO;
+	scrollView.bounces = YES; 
 	scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	[self addSubview:scrollView];
 	
@@ -303,18 +304,15 @@ const static CGFloat kReflectionFraction = 0.85;
 	// Make sure the user is tapping on a cover.
 	startPosition = (startPoint.x / 1.5) + scrollView.contentOffset.x;
 	
-	if (isSingleTap)
+	if (isSingleTap) {
 		isDoubleTap = YES;
+	}
 		
 	isSingleTap = ([touches count] == 1);
-    
-    // Begin of animation 
-    // XXX This is more the beginning of touch as animation...
-//    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidBegin:)])
-//        [self.viewDelegate openFlowViewAnimationDidBegin:self];
 	
-    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewScrollingDidBegin:)])
+    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewScrollingDidBegin:)]) {
         [self.viewDelegate openFlowViewScrollingDidBegin:self];
+	}
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -322,11 +320,13 @@ const static CGFloat kReflectionFraction = 0.85;
 	isDoubleTap = NO;
 	
 	// Only scroll if the user started on a cover.
-	if (!isDraggingACover)
+	if (!isDraggingACover) {
 		return;
+	}
 	
 	CGPoint movedPoint = [[touches anyObject] locationInView:self];
 	CGFloat offset = startPosition - (movedPoint.x / 1.5);
+	NSLog(@"Offset: %0.0f", offset);
 	CGPoint newPoint = CGPointMake(offset, 0);
 	scrollView.contentOffset = newPoint;
 	int newCover = offset / COVER_SPACING;
