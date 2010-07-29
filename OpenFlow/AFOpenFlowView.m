@@ -456,8 +456,8 @@ const static CGFloat kReflectionFraction = 0.85;
 				// Tack it on the right side.
 				upperVisibleCover++;
 				cover.number = upperVisibleCover;
-				[self updateCoverImage:cover];
 				[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:cover.number]];
+				[self updateCoverImage:cover];
 				[self layoutCover:cover selectedCover:newSelectedCover animated:NO];
 			} else {
 				// Recycle this cover.
@@ -486,8 +486,8 @@ const static CGFloat kReflectionFraction = 0.85;
 				// Tack it on the left side.
 				lowerVisibleCover --;
 				cover.number = lowerVisibleCover;
-				[self updateCoverImage:cover];
 				[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:lowerVisibleCover]];
+				[self updateCoverImage:cover];
 				[self layoutCover:cover selectedCover:newSelectedCover animated:NO];
 			} else {
 				// Recycle this cover.
