@@ -86,7 +86,7 @@
 }
 
 - (UIImage *)defaultImage {
-	return [UIImage imageNamed:@"default.png"];
+	return [UIImage imageNamed:@"coverdefault.png"];
 }
 
 - (NSInteger) numberOfImagesInOpenView:(AFOpenFlowView *)openFlowView {

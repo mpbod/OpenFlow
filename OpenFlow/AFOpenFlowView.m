@@ -316,15 +316,15 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	CGPoint movedPoint = [[touches anyObject] locationInView:self];
 	dragOffset = (movedPoint.x - startPoint.x);  // / DRAG_DIVISOR; //Ignore the drag divisor for the moment. 
 	NSLog(@"Offset: %0.0f", dragOffset);
-	int newCover = dragOffset / COVER_SPACING;
-	if (newCover != selectedCoverView.number) {
-		NSLog(@"New cover found!");
-		if (newCover < 0)
+	NSInteger newCoverDiff = (dragOffset * -1) / COVER_SPACING;
+	if (newCoverDiff != selectedCoverView.number) {
+		NSLog(@"New cover found: %d", newCoverDiff);
+		if (newCoverDiff < 0)
 			[self setSelectedCover:0];
-		else if (newCover >= self.numberOfImages)
+		else if (newCoverDiff >= self.numberOfImages)
 			[self setSelectedCover:self.numberOfImages - 1];
 		else
-			[self setSelectedCover:newCover];
+			[self setSelectedCover:newCoverDiff];
 	}
 	
 	//NEED to move the covers. 
@@ -390,12 +390,15 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 }
 
 - (void)setSelectedCover:(NSInteger)newSelectedCover {
-	if (selectedCoverView && (newSelectedCover == selectedCoverView.number))
+	//Don't do anything if the currently selectedCover is the newSelectedCover. 
+	if (selectedCoverView && (newSelectedCover == selectedCoverView.number)) {
 		return;
+	}
 	
 	AFItemView *cover;
-	NSInteger newLowerBound = MAX(0, newSelectedCover - COVER_BUFFER);
+	NSInteger newLowerBound = MAX(0, newSelectedCover - COVER_BUFFER);	//TODO: Mod these for continous looping!
 	NSInteger newUpperBound = MIN(self.numberOfImages - 1, newSelectedCover + COVER_BUFFER);
+	
 	if (!selectedCoverView) {
 		// Allocate and display covers from newLower to newUpper bounds.
 		for (NSInteger i=newLowerBound; i <= newUpperBound; i++) {
@@ -418,7 +421,6 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 		// They do not overlap at all.
 		// This does not animate--assuming it's programmatically set from view controller.
 		// Recycle all onscreen covers.
-		AFItemView *cover;
 		for (NSInteger i = lowerVisibleCover; i <= upperVisibleCover; i++) {
 			cover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:i]];
 			[offscreenCovers addObject:cover];
@@ -443,6 +445,7 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	} else if (newSelectedCover > selectedCoverView.number) {
 		// Move covers that are now out of range on the left to the right side,
 		// but only if appropriate (within the range set by newUpperBound).
+		NSLog(@"********THIS CODE DOES ACTUALLY GET RUN ************ REMOVE THIS!!!");
 		for (NSInteger i=lowerVisibleCover; i < newLowerBound; i++) {
 			cover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:i]];
 			if (upperVisibleCover < newUpperBound) {
