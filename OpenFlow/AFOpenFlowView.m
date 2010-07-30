@@ -292,7 +292,8 @@ const static CGFloat kReflectionFraction = 0.85;
 #pragma mark Touch management 
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-	CGPoint startPoint = [[touches anyObject] locationInView:self];
+	startPoint = [[touches anyObject] locationInView:self];
+	
 	isDraggingACover = NO;
 	
 	// Which cover did the user tap?
@@ -303,11 +304,7 @@ const static CGFloat kReflectionFraction = 0.85;
 	beginningCover = selectedCoverView.number;
 	// Make sure the user is tapping on a cover.
 	startPosition = (startPoint.x / 1.5) + scrollView.contentOffset.x;
-	
-	if (isSingleTap) {
-		isDoubleTap = YES;
-	}
-		
+
 	isSingleTap = ([touches count] == 1);
 	
     if ([self.viewDelegate respondsToSelector:@selector(openFlowViewScrollingDidBegin:)]) {
@@ -329,18 +326,18 @@ const static CGFloat kReflectionFraction = 0.85;
 	NSLog(@"Offset: %0.0f", offset);
 	CGPoint newPoint = CGPointMake(offset, 0);
 	scrollView.contentOffset = newPoint;
-	int newCover = offset / COVER_SPACING;
-	if (newCover != selectedCoverView.number) {
-		if (newCover < 0)
-			[self setSelectedCover:0];
-		else if (newCover >= self.numberOfImages)
-			[self setSelectedCover:self.numberOfImages - 1];
-		else
-			[self setSelectedCover:newCover];
-	}
-	
-    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidBegin:)])
-        [self.viewDelegate openFlowViewAnimationDidBegin:self];
+//	int newCover = offset / COVER_SPACING;
+//	if (newCover != selectedCoverView.number) {
+//		if (newCover < 0)
+//			[self setSelectedCover:0];
+//		else if (newCover >= self.numberOfImages)
+//			[self setSelectedCover:self.numberOfImages - 1];
+//		else
+//			[self setSelectedCover:newCover];
+//	}
+//	
+//    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidBegin:)])
+//        [self.viewDelegate openFlowViewAnimationDidBegin:self];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -350,7 +347,7 @@ const static CGFloat kReflectionFraction = 0.85;
 		}
 		return;
 	}
-	
+
 	if (isSingleTap) {
 		// Which cover did the user tap?
 		CGPoint targetPoint = [[touches anyObject] locationInView:self];

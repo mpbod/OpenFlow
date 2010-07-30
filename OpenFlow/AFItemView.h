@@ -26,14 +26,14 @@
 
 
 @interface AFItemView : UIView {
-	UIImageView		*imageView;
-	int				number;
-	CGFloat			horizontalPosition;
-	CGFloat			verticalPosition;
-	CGFloat			originalImageHeight;
+	UIImageView *imageView;
+	NSInteger number;
+	CGFloat	horizontalPosition;
+	CGFloat	verticalPosition;
+	CGFloat	originalImageHeight;
 }
 
-@property int number;
+@property NSInteger number;
 @property (nonatomic, readonly) CGFloat horizontalPosition;
 @property (nonatomic, readonly) CGFloat verticalPosition;
 @property (nonatomic, readonly) UIImageView *imageView;

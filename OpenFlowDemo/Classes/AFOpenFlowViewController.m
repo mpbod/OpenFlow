@@ -93,13 +93,13 @@
 	return 30;
 }
 
-- (void)openFlowView:(AFOpenFlowView *)openFlowView requestImageForIndex:(int)index {
+- (void)openFlowView:(AFOpenFlowView *)openFlowView requestImageForIndex:(NSInteger)index {
 	AFGetImageOperation *getImageOperation = [[AFGetImageOperation alloc] initWithIndex:index viewController:self];	
 	[loadImagesOperationQueue addOperation:getImageOperation];
 	[getImageOperation release];
 }
 
-- (void)openFlowView:(AFOpenFlowView *)openFlowView selectionDidChange:(int)index {
+- (void)openFlowView:(AFOpenFlowView *)openFlowView selectionDidChange:(NSInteger)index {
 	NSLog(@"Cover Flow selection did change to %d", index);
 }
 

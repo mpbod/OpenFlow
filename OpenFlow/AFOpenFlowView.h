@@ -31,25 +31,25 @@
 
 
 @interface AFOpenFlowView : UIView {
-	id <AFOpenFlowViewDataSource>	dataSource;
-	id <AFOpenFlowViewDelegate>     viewDelegate;
-	NSMutableSet					*offscreenCovers;
-	NSMutableDictionary				*onscreenCovers;
-	NSMutableDictionary				*coverImages;
-	NSMutableDictionary				*coverImageHeights;
-	UIImage							*defaultImage;
-	CGFloat							defaultImageHeight;
+	id <AFOpenFlowViewDataSource> dataSource;
+	id <AFOpenFlowViewDelegate> viewDelegate;
+	NSMutableSet *offscreenCovers;
+	NSMutableDictionary *onscreenCovers;
+	NSMutableDictionary	*coverImages;
+	NSMutableDictionary	*coverImageHeights;
+	UIImage	*defaultImage;
+	CGFloat	defaultImageHeight;
     
-	UIScrollView					*scrollView;
-	int								lowerVisibleCover;
-	int								upperVisibleCover;
-	int								numberOfImages;
-	int								beginningCover;
+	UIScrollView *scrollView;
+	NSInteger	lowerVisibleCover;
+	NSInteger	upperVisibleCover;
+	NSInteger	numberOfImages;
+	NSInteger	beginningCover;
 	
-	AFItemView						*selectedCoverView;
+	AFItemView *selectedCoverView;
 
-	NSDictionary					*flipViewShown;
-	UIView							*flippedContainerView;
+	NSDictionary *flipViewShown;
+	UIView *flippedContainerView;
 	
 	CATransform3D leftTransform, rightTransform;
 	
@@ -60,6 +60,7 @@
 	Boolean isDoubleTap;
 	Boolean isDraggingACover;
 	CGFloat startPosition;
+	CGPoint startPoint;
 }
 
 @property (nonatomic, assign) id <AFOpenFlowViewDataSource> dataSource;
@@ -71,13 +72,13 @@
 @property (nonatomic, retain) NSMutableDictionary *coverImageHeights;
 
 @property (nonatomic, retain) UIImage *defaultImage;
-@property int numberOfImages;
+@property NSInteger numberOfImages;
 @property (nonatomic, retain) AFItemView *selectedCoverView;
 
 - (void)reloadData; 
-- (void)setSelectedCover:(int)newSelectedCover;
+- (void)setSelectedCover:(NSInteger)newSelectedCover;
 - (void)centerOnSelectedCover:(BOOL)animated;
-- (void)setImage:(UIImage *)image forIndex:(int)index;
+- (void)setImage:(UIImage *)image forIndex:(NSInteger)index;
 - (void)flipSelectedToView:(UIView *)flipsideView;
 - (void)dismissFlippedSelection;
 

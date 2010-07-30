@@ -29,9 +29,9 @@
 
 @protocol AFOpenFlowViewDelegate <NSObject>
 @optional
-- (void)openFlowView:(AFOpenFlowView *)openFlowView selectionDidChange:(int)index;
-- (void)openFlowView:(AFOpenFlowView *)openFlowView didTap:(int)index;
-- (void)openFlowView:(AFOpenFlowView *)openFlowView didDoubleTap:(int)index;
+- (void)openFlowView:(AFOpenFlowView *)openFlowView selectionDidChange:(NSInteger)index;
+- (void)openFlowView:(AFOpenFlowView *)openFlowView didTap:(NSInteger)index;
+- (void)openFlowView:(AFOpenFlowView *)openFlowView didDoubleTap:(NSInteger)index;
 - (void)openFlowViewAnimationDidBegin:(AFOpenFlowView *)openFlowView;
 - (void)openFlowViewAnimationDidEnd:(AFOpenFlowView *)openFlowView;
 - (void)openFlowViewScrollingDidBegin:(AFOpenFlowView *)openFlowView;
