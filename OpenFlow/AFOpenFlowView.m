@@ -304,6 +304,7 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	}
 }
 
+
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
 	isSingleTap = NO;
 	isDoubleTap = NO;
@@ -315,16 +316,18 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	
 	CGPoint movedPoint = [[touches anyObject] locationInView:self];
 	dragOffset = (movedPoint.x - startPoint.x);  // / DRAG_DIVISOR; //Ignore the drag divisor for the moment. 
+
 	NSLog(@"Offset: %0.0f", dragOffset);
-	NSInteger newCoverDiff = (dragOffset * -1) / COVER_SPACING;
-	if (newCoverDiff != selectedCoverView.number) {
-		NSLog(@"New cover found: %d", newCoverDiff);
-		if (newCoverDiff < 0)
+	NSInteger newCoverDiff = (dragOffset * -1) / COVER_SPACING; //TODO: Calcula
+	if (newCoverDiff != 0) { 
+		NSInteger newSelectedCover = selectedCoverView.number + newCoverDiff;
+		NSLog(@"New cover found: %d", newSelectedCover);
+		if (newSelectedCover < 0)
 			[self setSelectedCover:0];
-		else if (newCoverDiff >= self.numberOfImages)
+		else if (newSelectedCover >= self.numberOfImages)
 			[self setSelectedCover:self.numberOfImages - 1];
 		else
-			[self setSelectedCover:newCoverDiff];
+			[self setSelectedCover:newSelectedCover];
 	}
 	
 	//NEED to move the covers. 
@@ -342,8 +345,7 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 //		return;
 //	}
 
-	dragOffset = 0;
-	
+
 	if (isSingleTap) {
 		// Which cover did the user tap?
 		CGPoint targetPoint = [[touches anyObject] locationInView:self];
@@ -372,7 +374,7 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 		if ([self.viewDelegate respondsToSelector:@selector(openFlowView:selectionDidChange:)])
 			[self.viewDelegate openFlowView:self selectionDidChange:selectedCoverView.number];
     }
-    
+	
     // End of scrolling 
     if ([self.viewDelegate respondsToSelector:@selector(openFlowViewScrollingDidEnd:)])
         [self.viewDelegate openFlowViewScrollingDidEnd:self];    
@@ -445,7 +447,6 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	} else if (newSelectedCover > selectedCoverView.number) {
 		// Move covers that are now out of range on the left to the right side,
 		// but only if appropriate (within the range set by newUpperBound).
-		NSLog(@"********THIS CODE DOES ACTUALLY GET RUN ************ REMOVE THIS!!!");
 		for (NSInteger i=lowerVisibleCover; i < newLowerBound; i++) {
 			cover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:i]];
 			if (upperVisibleCover < newUpperBound) {
