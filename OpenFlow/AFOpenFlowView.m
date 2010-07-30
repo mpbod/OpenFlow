@@ -26,7 +26,7 @@
 #import "AFOpenFlowConstants.h"
 #import "AFUIImageReflection.h"
 
-#define COVER_BUFFER 6
+
 
 @interface AFOpenFlowView (hidden)
 
@@ -43,7 +43,7 @@
 
 @implementation AFOpenFlowView
 
-const static CGFloat kReflectionFraction = 0.85;
+const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 
 @synthesize dataSource; 
 @synthesize viewDelegate;
@@ -67,8 +67,7 @@ const static CGFloat kReflectionFraction = 0.85;
 	self.coverImages = nil; 
 	self.coverImageHeights = nil; 
 	
-	[scrollView release];
-	[flipViewShown release];
+	//[flipViewShown release];
 	
 	[super dealloc];
 }
@@ -100,13 +99,6 @@ const static CGFloat kReflectionFraction = 0.85;
 - (void)setUpInitialState {
 	[self resetDataState]; 
 	
-	scrollView = [[UIScrollView alloc] initWithFrame:self.frame];
-	scrollView.userInteractionEnabled = NO;
-	scrollView.multipleTouchEnabled = NO;
-	scrollView.bounces = YES; 
-	scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-	[self addSubview:scrollView];
-	
 	self.multipleTouchEnabled = NO;
 	self.userInteractionEnabled = YES;
 	self.autoresizesSubviews = YES;
@@ -125,12 +117,12 @@ const static CGFloat kReflectionFraction = 0.85;
 	// Set some perspective
 	CATransform3D sublayerTransform = CATransform3DIdentity;
 	sublayerTransform.m34 = -0.01;
-	[scrollView.layer setSublayerTransform:sublayerTransform];
+	[self.layer setSublayerTransform:sublayerTransform];
 	
-	flipViewShown = nil;
-	
-	flippedContainerView = [[UIView alloc] initWithFrame:self.frame];
-	[self addSubview:flippedContainerView];
+//	flipViewShown = nil;
+//	
+//	flippedContainerView = [[UIView alloc] initWithFrame:self.frame];
+//	[self addSubview:flippedContainerView];
 	
 	[self setBounds:self.frame];
 }
@@ -175,7 +167,8 @@ const static CGFloat kReflectionFraction = 0.85;
 	CGFloat newZPosition = SIDE_COVER_ZPOSITION;
 	CGPoint newPosition;
 	
-	newPosition.x = halfScreenWidth + aCover.horizontalPosition;
+	NSLog(@"Layout cover with offset of %0.2f", dragOffset); 
+	newPosition.x = halfScreenWidth + aCover.horizontalPosition + dragOffset;
 	newPosition.y = halfScreenHeight + aCover.verticalPosition;
 	if (coverNumber < selectedIndex) {
 		newPosition.x -= CENTER_COVER_OFFSET;
@@ -255,7 +248,6 @@ const static CGFloat kReflectionFraction = 0.85;
 
 - (void)setNumberOfImages:(int)newNumberOfImages {
 	numberOfImages = newNumberOfImages;
-	scrollView.contentSize = CGSizeMake(newNumberOfImages * COVER_SPACING + self.bounds.size.width, self.bounds.size.height);
 
 	int lowerBound = MAX(0, selectedCoverView.number - COVER_BUFFER);
 	int upperBound = MIN(self.numberOfImages - 1, selectedCoverView.number + COVER_BUFFER);
@@ -297,13 +289,13 @@ const static CGFloat kReflectionFraction = 0.85;
 	isDraggingACover = NO;
 	
 	// Which cover did the user tap?
-	CALayer *targetLayer = (CALayer *)[scrollView.layer hitTest:startPoint];
+	CALayer *targetLayer = (CALayer *)[self.layer hitTest:startPoint];
 	AFItemView *targetCover = [self findCoverOnscreen:targetLayer];
 	isDraggingACover = (targetCover != nil);
 
 	beginningCover = selectedCoverView.number;
 	// Make sure the user is tapping on a cover.
-	startPosition = (startPoint.x / 1.5) + scrollView.contentOffset.x;
+	//startPosition = (startPoint.x / DRAG_DIVISOR) + scrollView.contentOffset.x;
 
 	isSingleTap = ([touches count] == 1);
 	
@@ -322,36 +314,40 @@ const static CGFloat kReflectionFraction = 0.85;
 	}
 	
 	CGPoint movedPoint = [[touches anyObject] locationInView:self];
-	CGFloat offset = startPosition - (movedPoint.x / 1.5);
-	NSLog(@"Offset: %0.0f", offset);
-	CGPoint newPoint = CGPointMake(offset, 0);
-	scrollView.contentOffset = newPoint;
-//	int newCover = offset / COVER_SPACING;
-//	if (newCover != selectedCoverView.number) {
-//		if (newCover < 0)
-//			[self setSelectedCover:0];
-//		else if (newCover >= self.numberOfImages)
-//			[self setSelectedCover:self.numberOfImages - 1];
-//		else
-//			[self setSelectedCover:newCover];
-//	}
-//	
-//    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidBegin:)])
-//        [self.viewDelegate openFlowViewAnimationDidBegin:self];
+	dragOffset = (movedPoint.x - startPoint.x);  // / DRAG_DIVISOR; //Ignore the drag divisor for the moment. 
+	NSLog(@"Offset: %0.0f", dragOffset);
+	int newCover = dragOffset / COVER_SPACING;
+	if (newCover != selectedCoverView.number) {
+		NSLog(@"New cover found!");
+		if (newCover < 0)
+			[self setSelectedCover:0];
+		else if (newCover >= self.numberOfImages)
+			[self setSelectedCover:self.numberOfImages - 1];
+		else
+			[self setSelectedCover:newCover];
+	}
+	
+	//NEED to move the covers. 
+	[self layoutSubviews];
+	
+    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidBegin:)])
+        [self.viewDelegate openFlowViewAnimationDidBegin:self];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-	if (flipViewShown) {
-		if (isSingleTap) {
-			[self dismissFlippedSelection];
-		}
-		return;
-	}
+//	if (flipViewShown) {
+//		if (isSingleTap) {
+//			[self dismissFlippedSelection];
+//		}
+//		return;
+//	}
 
+	dragOffset = 0;
+	
 	if (isSingleTap) {
 		// Which cover did the user tap?
 		CGPoint targetPoint = [[touches anyObject] locationInView:self];
-		CALayer *targetLayer = (CALayer *)[scrollView.layer hitTest:targetPoint];
+		CALayer *targetLayer = (CALayer *)[self.layer hitTest:targetPoint];
 		AFItemView *targetCover = [self findCoverOnscreen:targetLayer];
 		if (targetCover && (targetCover.number != selectedCoverView.number))
 			[self setSelectedCover:targetCover.number];
@@ -384,7 +380,8 @@ const static CGFloat kReflectionFraction = 0.85;
 
 - (void)centerOnSelectedCover:(BOOL)animated {
 	CGPoint selectedOffset = CGPointMake(COVER_SPACING * selectedCoverView.number, 0);
-	[scrollView setContentOffset:selectedOffset animated:animated];
+	//TODO: Need to move the covers to the right spots.
+	//[scrollView setContentOffset:selectedOffset animated:animated];
 }
 
 - (void)reloadData {
@@ -392,21 +389,20 @@ const static CGFloat kReflectionFraction = 0.85;
 	self.numberOfImages = [self.dataSource numberOfImagesInOpenView:self];
 }
 
-- (void)setSelectedCover:(int)newSelectedCover {
+- (void)setSelectedCover:(NSInteger)newSelectedCover {
 	if (selectedCoverView && (newSelectedCover == selectedCoverView.number))
 		return;
 	
 	AFItemView *cover;
-	int newLowerBound = MAX(0, newSelectedCover - COVER_BUFFER);
-	int newUpperBound = MIN(self.numberOfImages - 1, newSelectedCover + COVER_BUFFER);
+	NSInteger newLowerBound = MAX(0, newSelectedCover - COVER_BUFFER);
+	NSInteger newUpperBound = MIN(self.numberOfImages - 1, newSelectedCover + COVER_BUFFER);
 	if (!selectedCoverView) {
 		// Allocate and display covers from newLower to newUpper bounds.
-		for (int i=newLowerBound; i <= newUpperBound; i++) {
+		for (NSInteger i=newLowerBound; i <= newUpperBound; i++) {
 			cover = [self coverForIndex:i];
 			[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
 			[self updateCoverImage:cover];
-			[scrollView.layer addSublayer:cover.layer];
-			//[scrollView addSubview:cover];
+			[self.layer addSublayer:cover.layer];
 			[self layoutCover:cover selectedCover:newSelectedCover animated:NO];
 		}
 		
@@ -423,7 +419,7 @@ const static CGFloat kReflectionFraction = 0.85;
 		// This does not animate--assuming it's programmatically set from view controller.
 		// Recycle all onscreen covers.
 		AFItemView *cover;
-		for (int i = lowerVisibleCover; i <= upperVisibleCover; i++) {
+		for (NSInteger i = lowerVisibleCover; i <= upperVisibleCover; i++) {
 			cover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:i]];
 			[offscreenCovers addObject:cover];
 			[cover removeFromSuperview];
@@ -431,11 +427,11 @@ const static CGFloat kReflectionFraction = 0.85;
 		}
 			
 		// Move all available covers to new location.
-		for (int i=newLowerBound; i <= newUpperBound; i++) {
+		for (NSInteger i=newLowerBound; i <= newUpperBound; i++) {
 			cover = [self coverForIndex:i];
 			[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
 			[self updateCoverImage:cover];
-			[scrollView.layer addSublayer:cover.layer];
+			[self.layer addSublayer:cover.layer];
 		}
 
 		lowerVisibleCover = newLowerBound;
@@ -447,7 +443,7 @@ const static CGFloat kReflectionFraction = 0.85;
 	} else if (newSelectedCover > selectedCoverView.number) {
 		// Move covers that are now out of range on the left to the right side,
 		// but only if appropriate (within the range set by newUpperBound).
-		for (int i=lowerVisibleCover; i < newLowerBound; i++) {
+		for (NSInteger i=lowerVisibleCover; i < newLowerBound; i++) {
 			cover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:i]];
 			if (upperVisibleCover < newUpperBound) {
 				// Tack it on the right side.
@@ -466,18 +462,18 @@ const static CGFloat kReflectionFraction = 0.85;
 		lowerVisibleCover = newLowerBound;
 		
 		// Add in any missing covers on the right up to the newUpperBound.
-		for (int i=upperVisibleCover + 1; i <= newUpperBound; i++) {
+		for (NSInteger i=upperVisibleCover + 1; i <= newUpperBound; i++) {
 			cover = [self coverForIndex:i];
 			[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
 			[self updateCoverImage:cover];
-			[scrollView.layer addSublayer:cover.layer];
+			[self.layer addSublayer:cover.layer];
 			[self layoutCover:cover selectedCover:newSelectedCover animated:NO];
 		}
 		upperVisibleCover = newUpperBound;
 	} else {
 		// Move covers that are now out of range on the right to the left side,
 		// but only if appropriate (within the range set by newLowerBound).
-		for (int i=upperVisibleCover; i > newUpperBound; i--) {
+		for (NSInteger i=upperVisibleCover; i > newUpperBound; i--) {
 			cover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:i]];
 			if (lowerVisibleCover > newLowerBound) {
 				// Tack it on the left side.
@@ -496,11 +492,11 @@ const static CGFloat kReflectionFraction = 0.85;
 		upperVisibleCover = newUpperBound;
 		
 		// Add in any missing covers on the left down to the newLowerBound.
-		for (int i=lowerVisibleCover - 1; i >= newLowerBound; i--) {
+		for (NSInteger i=lowerVisibleCover - 1; i >= newLowerBound; i--) {
 			cover = [self coverForIndex:i];
 			[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
 			[self updateCoverImage:cover];
-			[scrollView.layer addSublayer:cover.layer];
+			[self.layer addSublayer:cover.layer];
 			//[scrollView addSubview:cover];
 			[self layoutCover:cover selectedCover:newSelectedCover animated:NO];
 		}
@@ -514,70 +510,70 @@ const static CGFloat kReflectionFraction = 0.85;
 	
 	selectedCoverView = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:newSelectedCover]];
 }
+//
+//- (void)flipSelectedToView:(UIView *)flipsideView {
+//	// Save selected view state before animation
+//	flipViewShown = [[NSMutableDictionary alloc] init];
+//	[flipViewShown setValue:selectedCoverView.imageView forKey:@"imageView"];
+//	[flipViewShown setValue:flipsideView forKey:@"flipsideView"];
+//	
+//	CGRect flippedViewFrame = CGRectMake(
+//										 (flippedContainerView.frame.size.width-flipsideView.frame.size.width)/2,
+//										 flippedContainerView.frame.size.height-flipsideView.frame.size.height,
+//										 flipsideView.frame.size.width,
+//										 flipsideView.frame.size.height);
+//	flipsideView.frame = flippedViewFrame;
+//	
+//	double animationDuration = 0.8;
+//	
+//	// Animate flip of open flow image out of view
+//	[UIView beginAnimations:nil context:NULL];
+//	[UIView setAnimationDuration:animationDuration];
+//	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft
+//						   forView:selectedCoverView
+//							 cache:YES];
+//	[selectedCoverView.imageView removeFromSuperview];
+//	[UIView commitAnimations];
+//	
+//	// Animate flip of flipped view into view
+//	[UIView beginAnimations:nil context:NULL];
+//	[UIView setAnimationDuration:animationDuration];
+//	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft
+//						   forView:flippedContainerView
+//							 cache:YES];
+//	[flippedContainerView addSubview:flipsideView];
+//	[UIView commitAnimations];
+//	
+//}
 
-- (void)flipSelectedToView:(UIView *)flipsideView {
-	// Save selected view state before animation
-	flipViewShown = [[NSMutableDictionary alloc] init];
-	[flipViewShown setValue:selectedCoverView.imageView forKey:@"imageView"];
-	[flipViewShown setValue:flipsideView forKey:@"flipsideView"];
-	
-	CGRect flippedViewFrame = CGRectMake(
-										 (flippedContainerView.frame.size.width-flipsideView.frame.size.width)/2,
-										 flippedContainerView.frame.size.height-flipsideView.frame.size.height,
-										 flipsideView.frame.size.width,
-										 flipsideView.frame.size.height);
-	flipsideView.frame = flippedViewFrame;
-	
-	double animationDuration = 0.8;
-	
-	// Animate flip of open flow image out of view
-	[UIView beginAnimations:nil context:NULL];
-	[UIView setAnimationDuration:animationDuration];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft
-						   forView:selectedCoverView
-							 cache:YES];
-	[selectedCoverView.imageView removeFromSuperview];
-	[UIView commitAnimations];
-	
-	// Animate flip of flipped view into view
-	[UIView beginAnimations:nil context:NULL];
-	[UIView setAnimationDuration:animationDuration];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft
-						   forView:flippedContainerView
-							 cache:YES];
-	[flippedContainerView addSubview:flipsideView];
-	[UIView commitAnimations];
-	
-}
-
-- (void)dismissFlippedSelection {
-	UIImageView *restoredImageView = [flipViewShown valueForKey:@"imageView"];
-	UIView *flipsideView = [flipViewShown valueForKey:@"flipsideView"];
-	
-	double animationDuration = 0.8;
-	
-	// Animate flip of flipped view out of view
-	[UIView beginAnimations:nil context:NULL];
-	[UIView setAnimationDuration:animationDuration];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight
-						   forView:flippedContainerView
-							 cache:YES];
-	[flipsideView removeFromSuperview];
-	[UIView commitAnimations];
-	
-	// Animate flip of image view back into view
-	[UIView beginAnimations:nil context:NULL];
-	[UIView setAnimationDuration:animationDuration];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight
-						   forView:selectedCoverView
-							 cache:YES];
-	[selectedCoverView addSubview:restoredImageView];
-	[UIView setAnimationDelegate:self];
-	[UIView setAnimationDidStopSelector:@selector(dismissFlippedAnimationDidStop:finished:context:)];
-	[UIView commitAnimations];
-	
-	flipViewShown = nil;
-}
+//- (void)dismissFlippedSelection {
+//	UIImageView *restoredImageView = [flipViewShown valueForKey:@"imageView"];
+//	UIView *flipsideView = [flipViewShown valueForKey:@"flipsideView"];
+//	
+//	double animationDuration = 0.8;
+//	
+//	// Animate flip of flipped view out of view
+//	[UIView beginAnimations:nil context:NULL];
+//	[UIView setAnimationDuration:animationDuration];
+//	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight
+//						   forView:flippedContainerView
+//							 cache:YES];
+//	[flipsideView removeFromSuperview];
+//	[UIView commitAnimations];
+//	
+//	// Animate flip of image view back into view
+//	[UIView beginAnimations:nil context:NULL];
+//	[UIView setAnimationDuration:animationDuration];
+//	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight
+//						   forView:selectedCoverView
+//							 cache:YES];
+//	[selectedCoverView addSubview:restoredImageView];
+//	[UIView setAnimationDelegate:self];
+//	[UIView setAnimationDidStopSelector:@selector(dismissFlippedAnimationDidStop:finished:context:)];
+//	[UIView commitAnimations];
+//	
+//	flipViewShown = nil;
+//}
 
 - (void)layoutCoverAnimationDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context {
     if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidEnd:)])

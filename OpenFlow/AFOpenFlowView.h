@@ -40,7 +40,6 @@
 	UIImage	*defaultImage;
 	CGFloat	defaultImageHeight;
     
-	UIScrollView *scrollView;
 	NSInteger	lowerVisibleCover;
 	NSInteger	upperVisibleCover;
 	NSInteger	numberOfImages;
@@ -48,8 +47,8 @@
 	
 	AFItemView *selectedCoverView;
 
-	NSDictionary *flipViewShown;
-	UIView *flippedContainerView;
+	//NSDictionary *flipViewShown;
+	//UIView *flippedContainerView;
 	
 	CATransform3D leftTransform, rightTransform;
 	
@@ -60,6 +59,7 @@
 	Boolean isDoubleTap;
 	Boolean isDraggingACover;
 	CGFloat startPosition;
+	CGFloat dragOffset; 
 	CGPoint startPoint;
 }
 
@@ -79,7 +79,7 @@
 - (void)setSelectedCover:(NSInteger)newSelectedCover;
 - (void)centerOnSelectedCover:(BOOL)animated;
 - (void)setImage:(UIImage *)image forIndex:(NSInteger)index;
-- (void)flipSelectedToView:(UIView *)flipsideView;
-- (void)dismissFlippedSelection;
+//- (void)flipSelectedToView:(UIView *)flipsideView;
+//- (void)dismissFlippedSelection;
 
 @end
