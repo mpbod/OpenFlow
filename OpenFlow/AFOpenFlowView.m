@@ -353,8 +353,9 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 		CGPoint targetPoint = [[touches anyObject] locationInView:self];
 		CALayer *targetLayer = (CALayer *)[self.layer hitTest:targetPoint];
 		AFItemView *targetCover = [self findCoverOnscreen:targetLayer];
-		if (targetCover && (targetCover.number != selectedCoverView.number))
+		if (targetCover && (targetCover.number != selectedCoverView.number)) {
 			[self setSelectedCover:targetCover.number];
+		}
 	}
 	[self centerOnSelectedCover:YES];
 	
@@ -582,14 +583,16 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 //}
 
 - (void)layoutCoverAnimationDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context {
-    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidEnd:)])
+    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidEnd:)]) {
         [self.viewDelegate openFlowViewAnimationDidEnd:self];    
+	}
 }
 
 - (void)dismissFlippedAnimationDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context {
 	// Same as layoutCoverAnimationDidStop: for now
-    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidEnd:)])
+    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidEnd:)]) {
         [self.viewDelegate openFlowViewAnimationDidEnd:self];    
+	}
 }
 
 
