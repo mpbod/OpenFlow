@@ -76,6 +76,8 @@
 @property NSInteger numberOfImages;
 @property (nonatomic, retain) AFItemView *selectedCoverView;
 
+- (IBAction)layerInfoButtonPressed:(id)sender;
+
 - (void)reloadData; 
 - (void)setSelectedCover:(NSInteger)newSelectedCover;
 - (void)centerOnSelectedCover:(BOOL)animated;

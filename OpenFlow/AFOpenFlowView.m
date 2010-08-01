@@ -74,13 +74,39 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 
 #pragma mark Accessor 
 
+- (void) displayLayerList {
+	//Spit out the Views 
+	NSInteger count = 0; 
+	for (UIView *view in self.subviews) {
+		NSLog(@"%d View Details: %@", count++, view); 
+		NSLog(@"View Layer: %@ %0.0f:%0.0f", view.layer, view.layer.frame.origin.x, view.layer.frame.origin.y);
+	}
+	NSLog(@"Valid Views:\n\n%@\n\nOffscreen Covers:\n\n%@", onscreenCovers, offscreenCovers);
+}
+
+- (IBAction)layerInfoButtonPressed:(id)sender {
+	[self displayLayerList];
+}
+
 - (void) setDataSource:(id <AFOpenFlowViewDataSource>)ds {
+	NSLog(@"Setting datasource");
 	if (ds != dataSource) {
 		[ds retain]; 
 		[dataSource release];
 		dataSource = ds; 
 		[self reloadData];
 	}
+	
+	//not sure why the layer is being left on the screen temp fix. 
+	for (UIView *view in self.subviews) {
+		if ([view isKindOfClass:[AFItemView class]]) {
+			if (view.frame.origin.x + view.frame.size.width > 10.0) {
+				view.frame = CGRectZero;
+			}
+		}
+	}
+	
+	[self displayLayerList];
 }
 
 #pragma mark Hidden Implementation details
@@ -102,7 +128,8 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	self.multipleTouchEnabled = NO;
 	self.userInteractionEnabled = YES;
 	self.autoresizesSubviews = YES;
-	self.layer.position=CGPointMake(self.frame.origin.x + self.frame.size.width / 2, self.frame.origin.y + self.frame.size.height / 2);
+	self.layer.position = CGPointMake(self.frame.origin.x + self.frame.size.width / 2, 
+									  self.frame.origin.y + self.frame.size.height / 2);
 	
 	// Initialize the visible and selected cover range.
 	lowerVisibleCover = upperVisibleCover = -1;
@@ -144,8 +171,9 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	UIImage *coverImage = (UIImage *)[coverImages objectForKey:coverNumber];
 	if (coverImage) {
 		NSNumber *coverImageHeightNumber = (NSNumber *)[coverImageHeights objectForKey:coverNumber];
-		if (coverImageHeightNumber)
+		if (coverImageHeightNumber) {
 			[aCover setImage:coverImage originalImageHeight:[coverImageHeightNumber floatValue] reflectionFraction:kReflectionFraction];
+		}
 	} else {
 		[aCover setImage:defaultImage originalImageHeight:defaultImageHeight reflectionFraction:kReflectionFraction];
 		[self.dataSource openFlowView:self requestImageForIndex:aCover.number];
@@ -167,7 +195,6 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	CGFloat newZPosition = SIDE_COVER_ZPOSITION;
 	CGPoint newPosition;
 	
-	NSLog(@"Layout cover with offset of %0.2f", dragOffset); 
 	newPosition.x = halfScreenWidth + aCover.horizontalPosition + dragOffset;
 	newPosition.y = halfScreenHeight + aCover.verticalPosition;
 	if (coverNumber < selectedIndex) {
@@ -214,11 +241,14 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	// See if this layer is one of our covers.
 	NSEnumerator *coverEnumerator = [onscreenCovers objectEnumerator];
 	AFItemView *aCover = nil;
-	while (aCover = (AFItemView *)[coverEnumerator nextObject])
-		if ([[aCover.imageView layer] isEqual:targetLayer])
-			break;
 	
-	return aCover;
+	while (aCover = (AFItemView *)[coverEnumerator nextObject]) {
+		if ([[aCover.imageView layer] isEqual:targetLayer]) {
+			return aCover;
+		}
+	}
+	
+	return nil; 
 }
 
 #pragma mark View Management 
@@ -252,10 +282,11 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	int lowerBound = MAX(0, selectedCoverView.number - COVER_BUFFER);
 	int upperBound = MIN(self.numberOfImages - 1, selectedCoverView.number + COVER_BUFFER);
 	
-	if (selectedCoverView)
+	if (selectedCoverView) {
 		[self layoutCovers:selectedCoverView.number fromCover:lowerBound toCover:upperBound];
-	else
+	} else {
 		[self setSelectedCover:0];
+	}
 	
 	[self centerOnSelectedCover:NO];
 }
@@ -319,24 +350,24 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	CGPoint movedPoint = [[touches anyObject] locationInView:self];
 	dragOffset = (movedPoint.x - startPoint.x);  // / DRAG_DIVISOR; //Ignore the drag divisor for the moment. 
 
-	NSLog(@"Offset: %0.0f", dragOffset);
 	NSInteger newCoverDiff = (dragOffset * -1) / COVER_SPACING; 
 	if (newCoverDiff != 0) { 
 		NSInteger newSelectedCover = selectedCoverAtDragStart + newCoverDiff;//TODO: Calculate from the original cover selected!
-		NSLog(@"New cover found: %d", newSelectedCover);
-		if (newSelectedCover < 0)
+		if (newSelectedCover < 0) {
 			[self setSelectedCover:0];
-		else if (newSelectedCover >= self.numberOfImages)
+		} else if (newSelectedCover >= self.numberOfImages) {
 			[self setSelectedCover:self.numberOfImages - 1];
-		else
+		} else {
 			[self setSelectedCover:newSelectedCover];
+		}
 	}
 	
 	//NEED to move the covers. 
 	[self layoutSubviews];
 	
-    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidBegin:)])
+    if ([self.viewDelegate respondsToSelector:@selector(openFlowViewAnimationDidBegin:)]) {
         [self.viewDelegate openFlowViewAnimationDidBegin:self];
+	}
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -510,10 +541,11 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 		lowerVisibleCover = newLowerBound;
 	}
 
-	if (selectedCoverView.number > newSelectedCover)
+	if (selectedCoverView.number > newSelectedCover) {
 		[self layoutCovers:newSelectedCover fromCover:newSelectedCover toCover:selectedCoverView.number];
-	else if (newSelectedCover > selectedCoverView.number)
+	} else if (newSelectedCover > selectedCoverView.number) {
 		[self layoutCovers:newSelectedCover fromCover:selectedCoverView.number toCover:newSelectedCover];
+	}
 	
 	selectedCoverView = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:newSelectedCover]];
 }
