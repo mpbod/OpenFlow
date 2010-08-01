@@ -89,7 +89,6 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 }
 
 - (void) setDataSource:(id <AFOpenFlowViewDataSource>)ds {
-	NSLog(@"Setting datasource");
 	if (ds != dataSource) {
 		[ds retain]; 
 		[dataSource release];
@@ -189,24 +188,29 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	return aCover;
 }
 
-- (void)layoutCover:(AFItemView *)aCover selectedCover:(int)selectedIndex animated:(Boolean)animated  {
-	int coverNumber = aCover.number;
+- (void)layoutCover:(AFItemView *)aCover selectedCover:(NSInteger)selectedIndex animated:(Boolean)animated  {
 	CATransform3D newTransform;
 	CGFloat newZPosition = SIDE_COVER_ZPOSITION;
 	CGPoint newPosition;
 	
-	newPosition.x = halfScreenWidth + aCover.horizontalPosition + dragOffset;
+	newPosition.x = halfScreenWidth + dragOffset;
 	newPosition.y = halfScreenHeight + aCover.verticalPosition;
-	if (coverNumber < selectedIndex) {
-		newPosition.x -= CENTER_COVER_OFFSET;
+	
+	NSInteger numberFromCover = aCover.number - selectedIndex; 
+	newPosition.x += numberFromCover * CENTER_COVER_OFFSET; 
+	
+	if (aCover.number < selectedIndex) {
 		newTransform = leftTransform;
-	} else if (coverNumber > selectedIndex) {
-		newPosition.x += CENTER_COVER_OFFSET;
+		newPosition.x -= COVER_IMAGE_SIZE / 2.0;
+	} else if (aCover.number > selectedIndex) {
 		newTransform = rightTransform;
+		newPosition.x += COVER_IMAGE_SIZE / 2.0;
 	} else {
 		newZPosition = 0;
 		newTransform = CATransform3DIdentity;
 	}
+	
+	NSLog(@"Cover Image %d offset %d Pos %0.0f:%0.0f", aCover.number, numberFromCover, newPosition.x, newPosition.y);
 	
 	if (animated) {
 		[UIView beginAnimations:nil context:nil];
@@ -226,10 +230,10 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	}
 }
 
-- (void)layoutCovers:(int)selected fromCover:(int)lowerBound toCover:(int)upperBound {
+- (void)layoutCovers:(NSInteger)selected fromCover:(NSInteger)lowerBound toCover:(NSInteger)upperBound {
 	AFItemView *cover;
 	NSNumber *coverNumber;
-	for (int i = lowerBound; i <= upperBound; i++) {
+	for (NSInteger i = lowerBound; i <= upperBound; i++) {
 		coverNumber = [[NSNumber alloc] initWithInt:i];
 		cover = (AFItemView *)[onscreenCovers objectForKey:coverNumber];
 		[coverNumber release];
@@ -273,7 +277,6 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	int upperBound = MIN(self.numberOfImages - 1, selectedCoverView.number + COVER_BUFFER);
 	
 	[self layoutCovers:selectedCoverView.number fromCover:lowerBound toCover:upperBound];
-	[self centerOnSelectedCover:NO];
 }	
 
 - (void)setNumberOfImages:(int)newNumberOfImages {
@@ -287,8 +290,6 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	} else {
 		[self setSelectedCover:0];
 	}
-	
-	[self centerOnSelectedCover:NO];
 }
 
 - (void)setDefaultImage:(UIImage *)newDefaultImage {
@@ -325,8 +326,6 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	isDraggingACover = (targetCover != nil);
 
 	beginningCover = selectedCoverView.number;
-	// Make sure the user is tapping on a cover.
-	//startPosition = (startPoint.x / DRAG_DIVISOR) + scrollView.contentOffset.x;
 
 	isSingleTap = ([touches count] == 1);
 	
@@ -343,9 +342,9 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	isDoubleTap = NO;
 	
 	// Only scroll if the user started on a cover.
-	if (!isDraggingACover) {
-		return;
-	}
+//	if (!isDraggingACover) {
+//		return;
+//	}
 	
 	CGPoint movedPoint = [[touches anyObject] locationInView:self];
 	dragOffset = (movedPoint.x - startPoint.x);  // / DRAG_DIVISOR; //Ignore the drag divisor for the moment. 
@@ -377,7 +376,7 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 //		}
 //		return;
 //	}
-
+	dragOffset = 0.0; 
 
 	if (isSingleTap) {
 		// Which cover did the user tap?
@@ -388,7 +387,6 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 			[self setSelectedCover:targetCover.number];
 		}
 	}
-	[self centerOnSelectedCover:YES];
 	
 	// And send the delegate the newly selected cover message.
 	if (beginningCover == selectedCoverView.number) {
@@ -409,15 +407,11 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 			[self.viewDelegate openFlowView:self selectionDidChange:selectedCoverView.number];
     }
 	
+	[self layoutSubviews];
+	
     // End of scrolling 
     if ([self.viewDelegate respondsToSelector:@selector(openFlowViewScrollingDidEnd:)])
         [self.viewDelegate openFlowViewScrollingDidEnd:self];    
-}
-
-- (void)centerOnSelectedCover:(BOOL)animated {
-	CGPoint selectedOffset = CGPointMake(COVER_SPACING * selectedCoverView.number, 0);
-	//TODO: Need to move the covers to the right spots.
-	//[scrollView setContentOffset:selectedOffset animated:animated];
 }
 
 - (void)reloadData {

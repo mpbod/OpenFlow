@@ -80,7 +80,6 @@
 
 - (void)reloadData; 
 - (void)setSelectedCover:(NSInteger)newSelectedCover;
-- (void)centerOnSelectedCover:(BOOL)animated;
 - (void)setImage:(UIImage *)image forIndex:(NSInteger)index;
 //- (void)flipSelectedToView:(UIView *)flipsideView;
 //- (void)dismissFlippedSelection;
