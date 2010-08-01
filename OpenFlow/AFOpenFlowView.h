@@ -40,10 +40,10 @@
 	UIImage	*defaultImage;
 	CGFloat	defaultImageHeight;
     
-	NSInteger	lowerVisibleCover;
-	NSInteger	upperVisibleCover;
-	NSInteger	numberOfImages;
-	NSInteger	beginningCover;
+	NSInteger lowerVisibleCover;
+	NSInteger upperVisibleCover;
+	NSInteger numberOfImages;
+	NSInteger beginningCover;
 	
 	AFItemView *selectedCoverView;
 
@@ -51,9 +51,6 @@
 	//UIView *flippedContainerView;
 	
 	CATransform3D leftTransform, rightTransform;
-	
-	CGFloat halfScreenHeight;
-	CGFloat halfScreenWidth;
 	
 	Boolean isSingleTap;
 	Boolean isDoubleTap;

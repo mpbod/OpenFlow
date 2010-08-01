@@ -193,18 +193,16 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	CGFloat newZPosition = SIDE_COVER_ZPOSITION;
 	CGPoint newPosition;
 	
-	newPosition.x = halfScreenWidth + dragOffset;
-	newPosition.y = halfScreenHeight + aCover.verticalPosition;
+	newPosition.x = (self.bounds.size.width / 2) + dragOffset;
+	newPosition.y = (self.bounds.size.height / 2) + aCover.verticalPosition;
 	
 	NSInteger numberFromCover = aCover.number - selectedIndex; 
 	newPosition.x += numberFromCover * CENTER_COVER_OFFSET; 
 	
 	if (aCover.number < selectedIndex) {
-		newTransform = leftTransform;
-		newPosition.x -= COVER_IMAGE_SIZE / 2.0;
-	} else if (aCover.number > selectedIndex) {
+		newTransform = leftTransform; 
+	} else if (selectedIndex < aCover.number) {
 		newTransform = rightTransform;
-		newPosition.x += COVER_IMAGE_SIZE / 2.0;
 	} else {
 		newZPosition = 0;
 		newTransform = CATransform3DIdentity;
@@ -258,6 +256,7 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 #pragma mark View Management 
 
 - (void)awakeFromNib {
+	
 	[self setUpInitialState];
 }
 
@@ -269,21 +268,18 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	return self;
 }
 
-- (void) layoutSubviews {
-	halfScreenWidth = self.bounds.size.width / 2;
-	halfScreenHeight = self.bounds.size.height / 2;
-	
-	int lowerBound = MAX(-1, selectedCoverView.number - COVER_BUFFER);
-	int upperBound = MIN(self.numberOfImages - 1, selectedCoverView.number + COVER_BUFFER);
+- (void) layoutSubviews {	
+	NSInteger lowerBound = MAX(-1, selectedCoverView.number - COVER_BUFFER);
+	NSInteger upperBound = MIN(self.numberOfImages - 1, selectedCoverView.number + COVER_BUFFER);
 	
 	[self layoutCovers:selectedCoverView.number fromCover:lowerBound toCover:upperBound];
 }	
 
-- (void)setNumberOfImages:(int)newNumberOfImages {
+- (void)setNumberOfImages:(NSInteger)newNumberOfImages {
 	numberOfImages = newNumberOfImages;
 
-	int lowerBound = MAX(0, selectedCoverView.number - COVER_BUFFER);
-	int upperBound = MIN(self.numberOfImages - 1, selectedCoverView.number + COVER_BUFFER);
+	NSInteger lowerBound = MAX(0, selectedCoverView.number - COVER_BUFFER);
+	NSInteger upperBound = MIN(self.numberOfImages - 1, selectedCoverView.number + COVER_BUFFER);
 	
 	if (selectedCoverView) {
 		[self layoutCovers:selectedCoverView.number fromCover:lowerBound toCover:upperBound];
@@ -298,7 +294,7 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	defaultImage = [[newDefaultImage addImageReflection:kReflectionFraction] retain];
 }
 
-- (void)setImage:(UIImage *)image forIndex:(int)index {
+- (void)setImage:(UIImage *)image forIndex:(NSInteger)index {
 	// Create a reflection for this image.
 	UIImage *imageWithReflection = [image addImageReflection:kReflectionFraction];
 	NSNumber *coverNumber = [NSNumber numberWithInt:index];
@@ -349,7 +345,10 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	CGPoint movedPoint = [[touches anyObject] locationInView:self];
 	dragOffset = (movedPoint.x - startPoint.x);  // / DRAG_DIVISOR; //Ignore the drag divisor for the moment. 
 
-	NSInteger newCoverDiff = (dragOffset * -1) / COVER_SPACING; 
+	NSInteger newCoverDiff = (dragOffset * -1) / COVER_SPACING;
+	
+	dragOffset = dragOffset + (newCoverDiff * COVER_SPACING); 
+	
 	if (newCoverDiff != 0) { 
 		NSInteger newSelectedCover = selectedCoverAtDragStart + newCoverDiff;//TODO: Calculate from the original cover selected!
 		if (newSelectedCover < 0) {
