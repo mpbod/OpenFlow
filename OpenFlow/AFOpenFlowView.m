@@ -299,6 +299,8 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 
 	isSingleTap = ([touches count] == 1);
 	
+	selectedCoverAtDragStart = selectedCoverView.number;
+	
     if ([self.viewDelegate respondsToSelector:@selector(openFlowViewScrollingDidBegin:)]) {
         [self.viewDelegate openFlowViewScrollingDidBegin:self];
 	}
@@ -318,9 +320,9 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	dragOffset = (movedPoint.x - startPoint.x);  // / DRAG_DIVISOR; //Ignore the drag divisor for the moment. 
 
 	NSLog(@"Offset: %0.0f", dragOffset);
-	NSInteger newCoverDiff = (dragOffset * -1) / COVER_SPACING; //TODO: Calcula
+	NSInteger newCoverDiff = (dragOffset * -1) / COVER_SPACING; 
 	if (newCoverDiff != 0) { 
-		NSInteger newSelectedCover = selectedCoverView.number + newCoverDiff;
+		NSInteger newSelectedCover = selectedCoverAtDragStart + newCoverDiff;//TODO: Calculate from the original cover selected!
 		NSLog(@"New cover found: %d", newSelectedCover);
 		if (newSelectedCover < 0)
 			[self setSelectedCover:0];

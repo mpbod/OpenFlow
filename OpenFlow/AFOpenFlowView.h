@@ -59,6 +59,7 @@
 	Boolean isDoubleTap;
 	Boolean isDraggingACover;
 	CGFloat startPosition;
+	NSInteger selectedCoverAtDragStart; 
 	CGFloat dragOffset; 
 	CGPoint startPoint;
 }
