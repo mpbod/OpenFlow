@@ -74,20 +74,6 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 
 #pragma mark Accessor 
 
-- (void) displayLayerList {
-	//Spit out the Views 
-	NSInteger count = 0; 
-	for (UIView *view in self.subviews) {
-		NSLog(@"%d View Details: %@", count++, view); 
-		NSLog(@"View Layer: %@ %0.0f:%0.0f", view.layer, view.layer.frame.origin.x, view.layer.frame.origin.y);
-	}
-	NSLog(@"Valid Views:\n\n%@\n\nOffscreen Covers:\n\n%@", onscreenCovers, offscreenCovers);
-}
-
-- (IBAction)layerInfoButtonPressed:(id)sender {
-	[self displayLayerList];
-}
-
 - (void) setDataSource:(id <AFOpenFlowViewDataSource>)ds {
 	if (ds != dataSource) {
 		[ds retain]; 
@@ -104,8 +90,6 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 			}
 		}
 	}
-	
-	[self displayLayerList];
 }
 
 #pragma mark Hidden Implementation details
@@ -208,7 +192,7 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 		newTransform = CATransform3DIdentity;
 	}
 	
-	NSLog(@"Cover Image %d offset %d Pos %0.0f:%0.0f", aCover.number, numberFromCover, newPosition.x, newPosition.y);
+	//NSLog(@"Cover Image %d offset %d Pos %0.0f:%0.0f", aCover.number, numberFromCover, newPosition.x, newPosition.y);
 	
 	if (animated) {
 		[UIView beginAnimations:nil context:nil];
@@ -326,7 +310,7 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	isSingleTap = ([touches count] == 1);
 	
 	selectedCoverAtDragStart = selectedCoverView.number;
-	
+
     if ([self.viewDelegate respondsToSelector:@selector(openFlowViewScrollingDidBegin:)]) {
         [self.viewDelegate openFlowViewScrollingDidBegin:self];
 	}
@@ -337,7 +321,7 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	isSingleTap = NO;
 	isDoubleTap = NO;
 	
-	// Only scroll if the user started on a cover.
+// Only scroll if the user started on a cover.
 //	if (!isDraggingACover) {
 //		return;
 //	}

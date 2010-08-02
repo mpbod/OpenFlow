@@ -39,6 +39,8 @@
 		// Image View
 		imageView = [[UIImageView alloc] initWithFrame:frame];
 		imageView.opaque = YES;
+		imageView.userInteractionEnabled = NO; 
+		self.userInteractionEnabled = NO; 
 		[self addSubview:imageView];
 	}
 	
@@ -77,6 +79,10 @@
 - (void)setFrame:(CGRect)newFrame {
 	[super setFrame:newFrame];
 	[imageView setFrame:newFrame];
+}
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+	NSLog(@"Touches stolen here!");
 }
 
 - (void)dealloc {
