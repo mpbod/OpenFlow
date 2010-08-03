@@ -175,8 +175,8 @@
 	CGFloat newZPosition = SIDE_COVER_ZPOSITION;
 	CGPoint newPosition;
 	
-	newPosition.x = (self.bounds.size.width / 2) + dragOffset;
-	newPosition.y =  (self.bounds.size.height / 2) +  (defaultImageHeight * COVER_HEIGHT_FRACTION) ; 
+	newPosition.x = (self.frame.size.width / 2) + dragOffset + 20;
+	newPosition.y =  (self.frame.size.height / 2) + (defaultImageHeight * COVER_HEIGHT_FRACTION) ; 
 	//(self.bounds.size.height); //verticalPosition = imageHeight * reflectionFraction / 2;
 	
 	NSInteger numberFromCover = aCover.number - selectedIndex; 
@@ -278,6 +278,10 @@
 }
 
 - (void)setImage:(UIImage *)image forIndex:(NSInteger)index {
+	if (self.defaultImage == nil) {
+		self.defaultImage = image; //The default image is used to calculate the size of 
+	}
+	
 	// Create a reflection for this image.
 	UIImage *imageWithReflection = [image addImageReflection:REFLECTION_FRACTION];
 	NSNumber *coverNumber = [NSNumber numberWithInt:index];

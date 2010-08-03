@@ -32,7 +32,6 @@
 
 - (UIImage *)rescaleImageToSize:(CGSize)size;
 - (UIImage *)cropImageToRect:(CGRect)cropRect;
-- (CGSize)calculateNewSizeForCroppingBox:(CGSize)croppingBox;
 - (UIImage *)cropCenterAndScaleImageToSize:(CGSize)cropSize;
 
 @end
