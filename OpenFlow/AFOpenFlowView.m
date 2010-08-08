@@ -43,6 +43,8 @@
 
 @implementation AFOpenFlowView
 
+const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
+
 @synthesize dataSource; 
 @synthesize viewDelegate;
 @synthesize numberOfImages; 
@@ -153,10 +155,10 @@
 	if (coverImage) {
 		NSNumber *coverImageHeightNumber = (NSNumber *)[coverImageHeights objectForKey:coverNumber];
 		if (coverImageHeightNumber) {
-			[aCover setImage:coverImage originalImageHeight:[coverImageHeightNumber floatValue] reflectionFraction:REFLECTION_FRACTION];
-		} //TODO: What happens when coverImageHeight is nil!
+			[aCover setImage:coverImage originalImageHeight:[coverImageHeightNumber floatValue] reflectionFraction:kReflectionFraction];
+		}
 	} else {
-		[aCover setImage:defaultImage originalImageHeight:defaultImageHeight reflectionFraction:REFLECTION_FRACTION];
+		[aCover setImage:defaultImage originalImageHeight:defaultImageHeight reflectionFraction:kReflectionFraction];
 		[self.dataSource openFlowView:self requestImageForIndex:aCover.number];
 	}
 }
@@ -175,9 +177,8 @@
 	CGFloat newZPosition = SIDE_COVER_ZPOSITION;
 	CGPoint newPosition;
 	
-	newPosition.x = (self.frame.size.width / 2) + dragOffset + 20;
-	newPosition.y =  (self.frame.size.height / 2) + (defaultImageHeight * COVER_HEIGHT_FRACTION) ; 
-	//(self.bounds.size.height); //verticalPosition = imageHeight * reflectionFraction / 2;
+	newPosition.x = (self.bounds.size.width / 2) + dragOffset;
+	newPosition.y = (self.bounds.size.height / 2) + aCover.verticalPosition;
 	
 	NSInteger numberFromCover = aCover.number - selectedIndex; 
 	newPosition.x += numberFromCover * CENTER_COVER_OFFSET; 
@@ -190,9 +191,7 @@
 		newZPosition = 0;
 		newTransform = CATransform3DIdentity;
 	}
-	
-	//NSLog(@"Cover Image %d offset %d Pos %0.0f:%0.0f", aCover.number, numberFromCover, newPosition.x, newPosition.y);
-	
+
 	if (animated) {
 		[UIView beginAnimations:nil context:nil];
 		[UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
@@ -274,16 +273,12 @@
 - (void)setDefaultImage:(UIImage *)newDefaultImage {
 	[defaultImage release];
 	defaultImageHeight = newDefaultImage.size.height;
-	defaultImage = [[newDefaultImage addImageReflection:REFLECTION_FRACTION] retain];
+	defaultImage = [[newDefaultImage addImageReflection:kReflectionFraction] retain];
 }
 
 - (void)setImage:(UIImage *)image forIndex:(NSInteger)index {
-	if (self.defaultImage == nil) {
-		self.defaultImage = image; //The default image is used to calculate the size of 
-	}
-	
 	// Create a reflection for this image.
-	UIImage *imageWithReflection = [image addImageReflection:REFLECTION_FRACTION];
+	UIImage *imageWithReflection = [image addImageReflection:kReflectionFraction];
 	NSNumber *coverNumber = [NSNumber numberWithInt:index];
 	[coverImages setObject:imageWithReflection forKey:coverNumber];
 	[coverImageHeights setObject:[NSNumber numberWithFloat:image.size.height] forKey:coverNumber];
@@ -291,7 +286,7 @@
 	// If this cover is onscreen, set its image and call layoutCover.
 	AFItemView *aCover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:index]];
 	if (aCover) {
-		[aCover setImage:imageWithReflection originalImageHeight:image.size.height reflectionFraction:REFLECTION_FRACTION];
+		[aCover setImage:imageWithReflection originalImageHeight:image.size.height reflectionFraction:kReflectionFraction];
 		[self layoutCover:aCover selectedCover:selectedCoverView.number animated:NO];
 	}
 }

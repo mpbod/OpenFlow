@@ -26,19 +26,21 @@
 #import <QuartzCore/QuartzCore.h>
 #import "AFOpenFlowConstants.h"
 
-@implementation AFItemView
 
-@synthesize number, imageView;
+@implementation AFItemView
+@synthesize number, imageView, horizontalPosition, verticalPosition;
 
 - (id)initWithFrame:(CGRect)frame {
 	if (self = [super initWithFrame:frame]) {
 		self.opaque = YES;
+		verticalPosition = 0;
+		horizontalPosition = 0;
 	
 		// Image View
 		imageView = [[UIImageView alloc] initWithFrame:frame];
 		imageView.opaque = YES;
-		imageView.userInteractionEnabled = NO;	//These lines needed to stop covers stealing touch events in iOS 3.0
-		self.userInteractionEnabled = NO;		//These lines needed to stop covers stealing touch events in iOS 3.0
+		imageView.userInteractionEnabled = NO; 
+		self.userInteractionEnabled = NO; 
 		[self addSubview:imageView];
 	}
 	
@@ -47,9 +49,31 @@
 
 - (void)setImage:(UIImage *)newImage originalImageHeight:(CGFloat)imageHeight reflectionFraction:(CGFloat)reflectionFraction {
 	[imageView setImage:newImage];
-	
+	verticalPosition = imageHeight * reflectionFraction / 2;
 	originalImageHeight = imageHeight;
 	self.frame = CGRectMake(0, 0, newImage.size.width, newImage.size.height);
+}
+
+- (void)setNumber:(int)newNumber {
+	horizontalPosition = COVER_SPACING * newNumber;
+	number = newNumber;
+}
+
+- (CGSize)calculateNewSize:(CGSize)baseImageSize boundingBox:(CGSize)boundingBox {
+	CGFloat boundingRatio = boundingBox.width / boundingBox.height;
+	CGFloat originalImageRatio = baseImageSize.width / baseImageSize.height;
+	
+	CGFloat newWidth;
+	CGFloat newHeight;
+	if (originalImageRatio > boundingRatio) {
+		newWidth = boundingBox.width;
+		newHeight = boundingBox.width * baseImageSize.height / baseImageSize.width;
+	} else {
+		newHeight = boundingBox.height;
+		newWidth = boundingBox.height * baseImageSize.width / baseImageSize.height;
+	}
+	
+	return CGSizeMake(newWidth, newHeight);
 }
 
 - (void)setFrame:(CGRect)newFrame {
@@ -59,6 +83,7 @@
 
 - (void)dealloc {
 	[imageView release];
+	
 	[super dealloc];
 }
 
