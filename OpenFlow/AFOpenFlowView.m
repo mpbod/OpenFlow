@@ -66,7 +66,7 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
     NSRange r;
     r.location = loc;
-    r.length = loc2 - loc;
+    r.length = loc2 + 1 - loc;
     return r;
 }
 
@@ -176,13 +176,24 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	}
 }
 
-- (AFItemView *)dequeueReusableCover {
-	AFItemView *aCover = [offscreenCovers anyObject];
-	if (aCover) {
-		[[aCover retain] autorelease];
-		[offscreenCovers removeObject:aCover];
+#pragma mark Cover Layout Code!
+
+- (void)layoutCovers:(NSInteger)selected fromCover:(NSInteger)lowerBound toCover:(NSInteger)upperBound {
+	AFItemView *cover;
+	NSNumber *coverNumber;
+	NSLog(@"Laying out covers from %d to %d", lowerBound, upperBound);
+	for (NSInteger i = lowerBound; i <= upperBound; i++) {
+		if (i < 0) {
+			coverNumber = [NSNumber numberWithInt:i + [onscreenCovers count]];
+		} else if (i > [onscreenCovers count] - 1) {
+			coverNumber = [NSNumber numberWithInt:i - [onscreenCovers count]];
+		} else {
+			coverNumber = [NSNumber numberWithInt:i];
+		}
+		
+		cover = (AFItemView *)[onscreenCovers objectForKey:coverNumber];
+		[self layoutCover:cover inPosition:i selectedCover:selected animated:YES];
 	}
-	return aCover;
 }
 
 - (void)layoutCover:(AFItemView *)aCover 
@@ -210,7 +221,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 		newZPosition = 0;
 		newTransform = CATransform3DIdentity;
 	}
-
+	
 	if (animated) {
 		[UIView beginAnimations:nil context:nil];
 		[UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
@@ -229,22 +240,14 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	}
 }
 
-- (void)layoutCovers:(NSInteger)selected fromCover:(NSInteger)lowerBound toCover:(NSInteger)upperBound {
-	AFItemView *cover;
-	NSNumber *coverNumber;
-	NSLog(@"Laying out covers from %d to %d", lowerBound, upperBound);
-	for (NSInteger i = lowerBound; i <= upperBound; i++) {
-		if (i < 0) {
-			coverNumber = [NSNumber numberWithInt:i + [onscreenCovers count]];
-		} else if (i > [onscreenCovers count] - 1) {
-			coverNumber = [NSNumber numberWithInt:i - [onscreenCovers count]];
-		} else {
-			coverNumber = [NSNumber numberWithInt:i];
-		}
-		
-		cover = (AFItemView *)[onscreenCovers objectForKey:coverNumber];
-		[self layoutCover:cover inPosition:i selectedCover:selected animated:YES];
+
+- (AFItemView *)dequeueReusableCover {
+	AFItemView *aCover = [offscreenCovers anyObject];
+	if (aCover) {
+		[[aCover retain] autorelease];
+		[offscreenCovers removeObject:aCover];
 	}
+	return aCover;
 }
 
 - (AFItemView *)findCoverOnscreen:(CALayer *)targetLayer {
@@ -467,8 +470,6 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 		return;
 	}
 	
-	NSLog(@"Selected cover is now %d ****************************************", newSelectedCover);
-	
 	NSIndexSet *onScreenCoversIndex = [self coverIndexForSelectedCoverIndex:newSelectedCover]; 
 	
 	for (AFItemView *cover in [self.onscreenCovers allValues]) {	//TODO: iOS4.0 enumerateKeysAndObjectsUsingBlock:
@@ -485,7 +486,6 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 			//Add to screen. 
 			AFItemView *cover = [onscreenCovers objectForKey:[NSNumber numberWithInt:i]];
 			if (cover == nil) {
-				NSLog(@"loading %d", i);
 				cover = [self coverForIndex:i];;
 				[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
 			}
