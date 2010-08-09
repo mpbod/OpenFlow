@@ -29,6 +29,7 @@
 
 @implementation AFOpenFlowViewController
 
+@synthesize openFlowView; 
 
 - (void)dealloc {
 	[loadImagesOperationQueue release];
@@ -36,6 +37,7 @@
 }
 
 - (void)awakeFromNib {
+	openFlowView.continousLoop = YES; 
 	loadImagesOperationQueue = [[NSOperationQueue alloc] init];
 	UIAlertView *openFlowImageSourceAlertView = [[UIAlertView alloc] initWithTitle:@"OpenFlow Demo Data Source" 
 																		   message:@"Sample Load method?" 

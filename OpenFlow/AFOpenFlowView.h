@@ -33,6 +33,8 @@
 @interface AFOpenFlowView : UIView {
 	id <AFOpenFlowViewDataSource> dataSource;
 	id <AFOpenFlowViewDelegate> viewDelegate;
+	BOOL continousLoop; 
+	
 	NSMutableSet *offscreenCovers;
 	NSMutableDictionary *onscreenCovers;
 	NSMutableDictionary	*coverImages;
@@ -40,8 +42,8 @@
 	UIImage	*defaultImage;
 	CGFloat	defaultImageHeight;
     
-	NSInteger lowerVisibleCover;
-	NSInteger upperVisibleCover;
+	//NSInteger lowerVisibleCover;
+	//NSInteger upperVisibleCover;
 	NSInteger numberOfImages;
 	NSInteger beginningCover;
 	
@@ -63,6 +65,7 @@
 
 @property (nonatomic, assign) id <AFOpenFlowViewDataSource> dataSource;
 @property (nonatomic, assign) id <AFOpenFlowViewDelegate> viewDelegate;
+@property (nonatomic, assign) BOOL continousLoop; 
 
 @property (nonatomic, retain) NSMutableSet *offscreenCovers;
 @property (nonatomic, retain) NSMutableDictionary *onscreenCovers;

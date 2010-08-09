@@ -32,11 +32,14 @@
 
 - (void)resetDataState;
 - (void)setUpInitialState;
-- (AFItemView *)coverForIndex:(int)coverIndex;
+- (AFItemView *)coverForIndex:(NSInteger)coverIndex;
 - (void)updateCoverImage:(AFItemView *)aCover;
 - (AFItemView *)dequeueReusableCover;
-- (void)layoutCovers:(int)selected fromCover:(int)lowerBound toCover:(int)upperBound;
-- (void)layoutCover:(AFItemView *)aCover selectedCover:(int)selectedIndex animated:(Boolean)animated;
+- (void)layoutCovers:(int)selected fromCover:(NSInteger)lowerBound toCover:(NSInteger)upperBound;
+- (void)layoutCover:(AFItemView *)aCover 
+		 inPosition:(NSInteger)position 
+	  selectedCover:(NSInteger)selectedIndex 
+		   animated:(Boolean)animated;
 - (AFItemView *)findCoverOnscreen:(CALayer *)targetLayer;
 
 @end
@@ -47,6 +50,8 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 
 @synthesize dataSource; 
 @synthesize viewDelegate;
+@synthesize continousLoop; 
+
 @synthesize numberOfImages; 
 @synthesize defaultImage;
 @synthesize selectedCoverView;
@@ -55,6 +60,15 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 @synthesize onscreenCovers;
 @synthesize coverImages;
 @synthesize coverImageHeights;
+
+#pragma mark Utility Methods 
+
+NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
+    NSRange r;
+    r.location = loc;
+    r.length = loc2 - loc;
+    return r;
+}
 
 - (void)dealloc {
 	self.dataSource = nil; 
@@ -115,7 +129,6 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 									  self.frame.origin.y + self.frame.size.height / 2);
 	
 	// Initialize the visible and selected cover range.
-	lowerVisibleCover = upperVisibleCover = -1;
 	selectedCoverView = nil;
 	
 	// Set up the cover's left & right transforms.
@@ -137,7 +150,7 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	[self setBounds:self.frame];
 }
 
-- (AFItemView *)coverForIndex:(int)coverIndex {
+- (AFItemView *)coverForIndex:(NSInteger)coverIndex {
 	AFItemView *coverView = [self dequeueReusableCover];
 	
 	if (!coverView) {
@@ -172,7 +185,11 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	return aCover;
 }
 
-- (void)layoutCover:(AFItemView *)aCover selectedCover:(NSInteger)selectedIndex animated:(Boolean)animated  {
+- (void)layoutCover:(AFItemView *)aCover 
+		 inPosition:(NSInteger)position 
+	  selectedCover:(NSInteger)selectedIndex 
+		   animated:(Boolean)animated {
+	
 	CATransform3D newTransform;
 	CGFloat newZPosition = SIDE_COVER_ZPOSITION;
 	CGPoint newPosition;
@@ -180,12 +197,12 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	newPosition.x = (self.bounds.size.width / 2) + dragOffset;
 	newPosition.y = (self.bounds.size.height / 2) + aCover.verticalPosition;
 	
-	NSInteger numberFromCover = aCover.number - selectedIndex; 
+	NSInteger numberFromCover = position - selectedIndex; 
 	newPosition.x += numberFromCover * CENTER_COVER_OFFSET; 
 	
-	if (aCover.number < selectedIndex) {
+	if (position < selectedIndex) {
 		newTransform = leftTransform; 
-	} else if (selectedIndex < aCover.number) {
+	} else if (selectedIndex < position) {
 		newTransform = rightTransform;
 	} else {
 		newZPosition = 0;
@@ -214,10 +231,16 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	AFItemView *cover;
 	NSNumber *coverNumber;
 	for (NSInteger i = lowerBound; i <= upperBound; i++) {
-		coverNumber = [[NSNumber alloc] initWithInt:i];
+		if (i < 0) {
+			coverNumber = [NSNumber numberWithInt:i + [onscreenCovers count]];
+		} else if (i > [onscreenCovers count] - 1) {
+			coverNumber = [NSNumber numberWithInt:i - [onscreenCovers count]];
+		} else {
+			coverNumber = [NSNumber numberWithInt:i];
+		}
+		
 		cover = (AFItemView *)[onscreenCovers objectForKey:coverNumber];
-		[coverNumber release];
-		[self layoutCover:cover selectedCover:selected animated:YES];
+		[self layoutCover:cover inPosition:i selectedCover:selected animated:YES];
 	}
 }
 
@@ -251,10 +274,15 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 }
 
 - (void) layoutSubviews {	
-	NSInteger lowerBound = MAX(-1, selectedCoverView.number - COVER_BUFFER);
-	NSInteger upperBound = MIN(self.numberOfImages - 1, selectedCoverView.number + COVER_BUFFER);
-	
-	[self layoutCovers:selectedCoverView.number fromCover:lowerBound toCover:upperBound];
+	if (self.continousLoop) {
+		[self layoutCovers:selectedCoverView.number 
+				 fromCover:selectedCoverView.number - COVER_BUFFER 
+				   toCover:selectedCoverView.number + COVER_BUFFER];
+	} else {
+		NSInteger lowerBound = MAX(-1, selectedCoverView.number - COVER_BUFFER);
+		NSInteger upperBound = MIN(self.numberOfImages - 1, selectedCoverView.number + COVER_BUFFER);
+		[self layoutCovers:selectedCoverView.number fromCover:lowerBound toCover:upperBound];	
+	}
 }	
 
 - (void)setNumberOfImages:(NSInteger)newNumberOfImages {
@@ -287,7 +315,7 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	AFItemView *aCover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:index]];
 	if (aCover) {
 		[aCover setImage:imageWithReflection originalImageHeight:image.size.height reflectionFraction:kReflectionFraction];
-		[self layoutCover:aCover selectedCover:selectedCoverView.number animated:NO];
+		[self layoutCover:aCover inPosition:aCover.number selectedCover:selectedCoverView.number animated:NO];
 	}
 }
 
@@ -400,130 +428,191 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 	self.numberOfImages = [self.dataSource numberOfImagesInOpenView:self];
 }
 
+- (NSIndexSet *) coverIndexForSelectedCoverIndex:(NSInteger)selectedCoverIndex {
+	NSMutableIndexSet *onScreenCoversIndex; 
+	
+	if (self.continousLoop) {
+		if (selectedCoverIndex - COVER_BUFFER < 0 && self.numberOfImages < selectedCoverIndex + COVER_BUFFER) {
+			onScreenCoversIndex = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, self.numberOfImages - 1)];
+		} else {
+			if (selectedCoverView.number - COVER_BUFFER < 0) {
+				onScreenCoversIndex = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 
+																								selectedCoverIndex + COVER_BUFFER)];
+	
+				[onScreenCoversIndex addIndexesInRange:NSMakeRangeToIndex(self.numberOfImages + selectedCoverView.number - COVER_BUFFER, self.numberOfImages - 1)]; //Covers at the end for loop 
+				
+			} else if (self.numberOfImages < selectedCoverView.number + COVER_BUFFER) {
+				onScreenCoversIndex = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRangeToIndex(selectedCoverIndex - COVER_BUFFER, 
+																								self.numberOfImages - 1)];
+				[onScreenCoversIndex addIndexesInRange:NSMakeRange(0, selectedCoverIndex + COVER_BUFFER - self.numberOfImages)]; //Covers at the start for loop
+		
+			} else {
+				onScreenCoversIndex = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRangeToIndex(selectedCoverIndex - COVER_BUFFER, 
+																								selectedCoverIndex + COVER_BUFFER)];
+			}
+		}
+	} else {
+		onScreenCoversIndex = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRangeToIndex(MAX(-1, selectedCoverIndex - COVER_BUFFER), 
+																						MIN(self.numberOfImages - 1, selectedCoverIndex + COVER_BUFFER))];
+	}	
+	return onScreenCoversIndex; 
+}
+
 - (void)setSelectedCover:(NSInteger)newSelectedCover {
 	//Don't do anything if the currently selectedCover is the newSelectedCover. 
 	if (selectedCoverView && (newSelectedCover == selectedCoverView.number)) {
 		return;
 	}
 	
-	AFItemView *cover;
-	NSInteger newLowerBound = MAX(0, newSelectedCover - COVER_BUFFER);	//TODO: Mod these for continous looping!
-	NSInteger newUpperBound = MIN(self.numberOfImages - 1, newSelectedCover + COVER_BUFFER);
+	NSIndexSet *onScreenCoversIndex = [self coverIndexForSelectedCoverIndex:selectedCoverView.number]; 
 	
-	if (!selectedCoverView) {
-		// Allocate and display covers from newLower to newUpper bounds.
-		for (NSInteger i=newLowerBound; i <= newUpperBound; i++) {
-			cover = [self coverForIndex:i];
-			[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
-			[self updateCoverImage:cover];
-			[self.layer addSublayer:cover.layer];
-			[self layoutCover:cover selectedCover:newSelectedCover animated:NO];
-		}
-		
-		lowerVisibleCover = newLowerBound;
-		upperVisibleCover = newUpperBound;
-		selectedCoverView = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:newSelectedCover]];
-		
-		return;
-	}
-	
-	// Check to see if the new & current ranges overlap.
-	if ((newLowerBound > upperVisibleCover) || (newUpperBound < lowerVisibleCover)) {
-		// They do not overlap at all.
-		// This does not animate--assuming it's programmatically set from view controller.
-		// Recycle all onscreen covers.
-		for (NSInteger i = lowerVisibleCover; i <= upperVisibleCover; i++) {
-			cover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:i]];
-			[offscreenCovers addObject:cover];
+	for (AFItemView *cover in [self.onscreenCovers allValues]) {	//TODO: iOS4.0 enumerateKeysAndObjectsUsingBlock:
+		if (! [onScreenCoversIndex containsIndex:cover.number]) {
+			[self.offscreenCovers addObject:cover];
 			[cover removeFromSuperview];
-			[onscreenCovers removeObjectForKey:[NSNumber numberWithInt:cover.number]];
+			[self.onscreenCovers removeObjectForKey:[NSNumber numberWithInt:cover.number]];
 		}
-			
-		// Move all available covers to new location.
-		for (NSInteger i=newLowerBound; i <= newUpperBound; i++) {
-			cover = [self coverForIndex:i];
-			[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
-			[self updateCoverImage:cover];
-			[self.layer addSublayer:cover.layer];
-		}
-
-		lowerVisibleCover = newLowerBound;
-		upperVisibleCover = newUpperBound;
-		selectedCoverView = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:newSelectedCover]];
-		[self layoutCovers:newSelectedCover fromCover:newLowerBound toCover:newUpperBound];
-		
-		return;
-	} else if (newSelectedCover > selectedCoverView.number) {
-		// Move covers that are now out of range on the left to the right side,
-		// but only if appropriate (within the range set by newUpperBound).
-		for (NSInteger i=lowerVisibleCover; i < newLowerBound; i++) {
-			cover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:i]];
-			if (upperVisibleCover < newUpperBound) {
-				// Tack it on the right side.
-				upperVisibleCover++;
-				cover.number = upperVisibleCover;
-				[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:cover.number]];
-				[self updateCoverImage:cover];
-				[self layoutCover:cover selectedCover:newSelectedCover animated:NO];
-			} else {
-				// Recycle this cover.
-				[offscreenCovers addObject:cover];
-				[cover removeFromSuperview];
-			}
-			[onscreenCovers removeObjectForKey:[NSNumber numberWithInt:i]];
-		}
-		lowerVisibleCover = newLowerBound;
-		
-		// Add in any missing covers on the right up to the newUpperBound.
-		for (NSInteger i=upperVisibleCover + 1; i <= newUpperBound; i++) {
-			cover = [self coverForIndex:i];
-			[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
-			[self updateCoverImage:cover];
-			[self.layer addSublayer:cover.layer];
-			[self layoutCover:cover selectedCover:newSelectedCover animated:NO];
-		}
-		upperVisibleCover = newUpperBound;
-	} else {
-		// Move covers that are now out of range on the right to the left side,
-		// but only if appropriate (within the range set by newLowerBound).
-		for (NSInteger i=upperVisibleCover; i > newUpperBound; i--) {
-			cover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:i]];
-			if (lowerVisibleCover > newLowerBound) {
-				// Tack it on the left side.
-				lowerVisibleCover --;
-				cover.number = lowerVisibleCover;
-				[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:lowerVisibleCover]];
-				[self updateCoverImage:cover];
-				[self layoutCover:cover selectedCover:newSelectedCover animated:NO];
-			} else {
-				// Recycle this cover.
-				[offscreenCovers addObject:cover];
-				[cover removeFromSuperview];
-			}
-			[onscreenCovers removeObjectForKey:[NSNumber numberWithInt:i]];
-		}
-		upperVisibleCover = newUpperBound;
-		
-		// Add in any missing covers on the left down to the newLowerBound.
-		for (NSInteger i=lowerVisibleCover - 1; i >= newLowerBound; i--) {
-			cover = [self coverForIndex:i];
-			[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
-			[self updateCoverImage:cover];
-			[self.layer addSublayer:cover.layer];
-			//[scrollView addSubview:cover];
-			[self layoutCover:cover selectedCover:newSelectedCover animated:NO];
-		}
-		lowerVisibleCover = newLowerBound;
 	}
 
-	if (selectedCoverView.number > newSelectedCover) {
-		[self layoutCovers:newSelectedCover fromCover:newSelectedCover toCover:selectedCoverView.number];
-	} else if (newSelectedCover > selectedCoverView.number) {
-		[self layoutCovers:newSelectedCover fromCover:selectedCoverView.number toCover:newSelectedCover];
+	for (NSInteger i = 0; i < self.numberOfImages; i++) { 
+		//Check to see if the cover is already in the covers list
+		if (! [onScreenCoversIndex containsIndex:i]) {
+			//Add to screen. 
+			AFItemView *cover = [onscreenCovers objectForKey:[NSNumber numberWithInt:i]];
+			if (cover == nil) {
+				cover = [self coverForIndex:i];;
+				[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
+			}
+			[self updateCoverImage:cover];
+			[self.layer addSublayer:cover.layer];
+		}
+		
+		//TODO: Implement using enumerateIndexesUsingBlock: iOS 4.0 only!
 	}
 	
-	selectedCoverView = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:newSelectedCover]];
+	self.selectedCoverView = [onscreenCovers objectForKey:[NSNumber numberWithInt:newSelectedCover]];
+	
+	[self layoutSubviews];
+	
+	
+//	if (!selectedCoverView) {
+//		// Allocate and display covers from newLower to newUpper bounds.
+//		for (NSInteger i=newLowerBound; i <= newUpperBound; i++) {
+//			cover = [self coverForIndex:i];
+//			[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
+//			[self updateCoverImage:cover];
+//			[self.layer addSublayer:cover.layer];
+//			[self layoutCover:cover inPosition:cover.number selectedCover:newSelectedCover animated:NO];
+//		}
+//		
+//		lowerVisibleCover = newLowerBound;
+//		upperVisibleCover = newUpperBound;
+//		selectedCoverView = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:newSelectedCover]];
+//		
+//		return;
+//	}
+//	
+//	
+//	
+//	// Check to see if the new & current ranges overlap.
+//	if ((newLowerBound > upperVisibleCover) || (newUpperBound < lowerVisibleCover)) {
+//		// They do not overlap at all.
+//		// This does not animate--assuming it's programmatically set from view controller.
+//		// Recycle all onscreen covers.
+//		for (NSInteger i = lowerVisibleCover; i <= upperVisibleCover; i++) {
+//			cover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:i]];
+//			[offscreenCovers addObject:cover];
+//			[cover removeFromSuperview];
+//			[onscreenCovers removeObjectForKey:[NSNumber numberWithInt:cover.number]];
+//		}
+//			
+//		// Move all available covers to new location.
+//		for (NSInteger i=newLowerBound; i <= newUpperBound; i++) {
+//			cover = [self coverForIndex:i];
+//			[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
+//			[self updateCoverImage:cover];
+//			[self.layer addSublayer:cover.layer];
+//		}
+//
+//		lowerVisibleCover = newLowerBound;
+//		upperVisibleCover = newUpperBound;
+//		selectedCoverView = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:newSelectedCover]];
+//		[self layoutCovers:newSelectedCover fromCover:newLowerBound toCover:newUpperBound];
+//		
+//		return;
+//	} else if (newSelectedCover > selectedCoverView.number) {
+//		// Move covers that are now out of range on the left to the right side,
+//		// but only if appropriate (within the range set by newUpperBound).
+//		for (NSInteger i=lowerVisibleCover; i < newLowerBound; i++) {
+//			cover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:i]];
+//			if (upperVisibleCover < newUpperBound) {
+//				// Tack it on the right side.
+//				upperVisibleCover++;
+//				cover.number = upperVisibleCover;
+//				[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:cover.number]];
+//				[self updateCoverImage:cover];
+//				[self layoutCover:cover inPosition:cover.number selectedCover:newSelectedCover animated:NO];
+//			} else {
+//				// Recycle this cover.
+//				[offscreenCovers addObject:cover];
+//				[cover removeFromSuperview];
+//			}
+//			[onscreenCovers removeObjectForKey:[NSNumber numberWithInt:i]];
+//		}
+//		lowerVisibleCover = newLowerBound;
+//		
+//		// Add in any missing covers on the right up to the newUpperBound.
+//		for (NSInteger i=upperVisibleCover + 1; i <= newUpperBound; i++) {
+//			cover = [self coverForIndex:i];
+//			[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
+//			[self updateCoverImage:cover];
+//			[self.layer addSublayer:cover.layer];
+//			[self layoutCover:cover inPosition:cover.number selectedCover:newSelectedCover animated:NO];
+//		}
+//		upperVisibleCover = newUpperBound;
+//	} else {
+//		// Move covers that are now out of range on the right to the left side,
+//		// but only if appropriate (within the range set by newLowerBound).
+//		for (NSInteger i=upperVisibleCover; i > newUpperBound; i--) {
+//			cover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:i]];
+//			if (lowerVisibleCover > newLowerBound) {
+//				// Tack it on the left side.
+//				lowerVisibleCover --;
+//				cover.number = lowerVisibleCover;
+//				[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:lowerVisibleCover]];
+//				[self updateCoverImage:cover];
+//				[self layoutCover:cover inPosition:cover.number selectedCover:newSelectedCover animated:NO];
+//			} else {
+//				// Recycle this cover.
+//				[offscreenCovers addObject:cover];
+//				[cover removeFromSuperview];
+//			}
+//			[onscreenCovers removeObjectForKey:[NSNumber numberWithInt:i]];
+//		}
+//		upperVisibleCover = newUpperBound;
+//		
+//		// Add in any missing covers on the left down to the newLowerBound.
+//		for (NSInteger i=lowerVisibleCover - 1; i >= newLowerBound; i--) {
+//			cover = [self coverForIndex:i];
+//			[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
+//			[self updateCoverImage:cover];
+//			[self.layer addSublayer:cover.layer];
+//			//[scrollView addSubview:cover];
+//			[self layoutCover:cover inPosition:cover.number selectedCover:newSelectedCover animated:NO];
+//		}
+//		lowerVisibleCover = newLowerBound;
+//	}
+//
+//	if (selectedCoverView.number > newSelectedCover) {
+//		[self layoutCovers:newSelectedCover fromCover:newSelectedCover toCover:selectedCoverView.number];
+//	} else if (newSelectedCover > selectedCoverView.number) {
+//		[self layoutCovers:newSelectedCover fromCover:selectedCoverView.number toCover:newSelectedCover];
+//	}
+//	
+//	selectedCoverView = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:newSelectedCover]];
 }
+
+
 //
 //- (void)flipSelectedToView:(UIView *)flipsideView {
 //	// Save selected view state before animation

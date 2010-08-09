@@ -32,7 +32,10 @@
 	NSArray *coverImageData;
 	NSDictionary *interestingPhotosDictionary;
 	NSOperationQueue *loadImagesOperationQueue;
+	AFOpenFlowView *openFlowView; 
 }
+
+@property (nonatomic, retain) IBOutlet AFOpenFlowView *openFlowView; //Only need this to set continous loop!
 
 - (void)imageDidLoad:(NSArray *)arguments;
 - (IBAction)infoButtonPressed:(id)sender;
