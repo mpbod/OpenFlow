@@ -79,7 +79,5 @@
 - (void)reloadData; 
 - (void)setSelectedCover:(NSInteger)newSelectedCover;
 - (void)setImage:(UIImage *)image forIndex:(NSInteger)index;
-//- (void)flipSelectedToView:(UIView *)flipsideView;
-//- (void)dismissFlippedSelection;
 
 @end
