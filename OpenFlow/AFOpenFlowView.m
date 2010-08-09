@@ -163,6 +163,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 }
 
 - (void)updateCoverImage:(AFItemView *)aCover {
+	NSLog(@"Updating Cover image: %d", aCover.number);
 	NSNumber *coverNumber = [NSNumber numberWithInt:aCover.number];
 	UIImage *coverImage = (UIImage *)[coverImages objectForKey:coverNumber];
 	if (coverImage) {
@@ -201,7 +202,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	  selectedCover:(NSInteger)selectedIndex 
 		   animated:(Boolean)animated {
 	
-	NSLog(@"Laying out cover %d in position %d", aCover.number, position);
+	
 	
 	CATransform3D newTransform;
 	CGFloat newZPosition = SIDE_COVER_ZPOSITION;
@@ -211,6 +212,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	newPosition.y = (self.bounds.size.height / 2) + aCover.verticalPosition;
 	
 	NSInteger numberFromCover = position - selectedIndex; 
+	NSLog(@"Laying out cover %d in slot %d", aCover.number, numberFromCover);
 	newPosition.x += numberFromCover * CENTER_COVER_OFFSET; 
 	
 	if (position < selectedIndex) {
@@ -281,13 +283,13 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 
 - (void) layoutSubviews {	
 	if (self.continousLoop) {
-		[self layoutCovers:selectedCoverView.number 
-				 fromCover:selectedCoverView.number - COVER_BUFFER 
-				   toCover:selectedCoverView.number + COVER_BUFFER];
+		[self layoutCovers:self.selectedCoverView.number 
+				 fromCover:self.selectedCoverView.number - COVER_BUFFER 
+				   toCover:self.selectedCoverView.number + COVER_BUFFER];
 	} else {
-		NSInteger lowerBound = MAX(0, selectedCoverView.number - COVER_BUFFER);
-		NSInteger upperBound = MIN(self.numberOfImages - 1, selectedCoverView.number + COVER_BUFFER);
-		[self layoutCovers:selectedCoverView.number fromCover:lowerBound toCover:upperBound];	
+		NSInteger lowerBound = MAX(0, self.selectedCoverView.number - COVER_BUFFER);
+		NSInteger upperBound = MIN(self.numberOfImages - 1, self.selectedCoverView.number + COVER_BUFFER);
+		[self layoutCovers:self.selectedCoverView.number fromCover:lowerBound toCover:upperBound];	
 	}
 }	
 
@@ -459,7 +461,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 		}
 	} else {
 		onScreenCoversIndex = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRangeToIndex(MAX(0, selectedCoverIndex - COVER_BUFFER), 
-																						MIN(self.numberOfImages - 1, selectedCoverIndex + COVER_BUFFER + 1))];
+																						MIN(self.numberOfImages - 1, selectedCoverIndex + COVER_BUFFER))];
 	}	
 	return onScreenCoversIndex; 
 }
