@@ -467,7 +467,9 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 		return;
 	}
 	
-	NSIndexSet *onScreenCoversIndex = [self coverIndexForSelectedCoverIndex:selectedCoverView.number]; 
+	NSLog(@"Selected cover is now %d ****************************************", newSelectedCover);
+	
+	NSIndexSet *onScreenCoversIndex = [self coverIndexForSelectedCoverIndex:newSelectedCover]; 
 	
 	for (AFItemView *cover in [self.onscreenCovers allValues]) {	//TODO: iOS4.0 enumerateKeysAndObjectsUsingBlock:
 		if (! [onScreenCoversIndex containsIndex:cover.number]) {
