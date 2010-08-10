@@ -31,9 +31,9 @@
 	CGFloat	originalImageHeight;
 }
 
-@property NSInteger number;
-@property (nonatomic, readonly) UIImageView *imageView;
+@property (nonatomic, assign) NSInteger number;
+@property (nonatomic, retain) UIImageView *imageView;
 
-- (void)setImage:(UIImage *)newImage originalImageHeight:(CGFloat)imageHeight reflectionFraction:(CGFloat)reflectionFraction;
+- (void)setImage:(UIImage *)newImage originalImageHeight:(CGFloat)imageHeight;
 
 @end

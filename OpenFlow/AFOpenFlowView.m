@@ -180,27 +180,29 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 
 - (AFItemView *)coverForIndex:(NSInteger)coverIndex {
 	AFItemView *coverView = [self dequeueReusableCover];
-	NSLog(@"Creating cover %d", coverIndex);
-	if (!coverView) {
-		coverView = [[[AFItemView alloc] initWithFrame:CGRectZero] autorelease];
-	}
 	
+	if (!coverView) {
+		NSLog(@"Creating cover %d", coverIndex);
+		coverView = [[[AFItemView alloc] initWithFrame:CGRectZero] autorelease];
+	} else {
+		NSLog(@"Recycling Cover ******************************");
+	}
+	 
 	coverView.backgroundColor = self.backgroundColor;
 	coverView.number = coverIndex;
 	return coverView;
 }
 
 - (void)updateCoverImage:(AFItemView *)aCover {
-	NSLog(@"Updating Cover image: %d", aCover.number);
 	NSNumber *coverNumber = [NSNumber numberWithInt:aCover.number];
 	UIImage *coverImage = (UIImage *)[coverImages objectForKey:coverNumber];
 	if (coverImage) {
 		NSNumber *coverImageHeightNumber = (NSNumber *)[coverImageHeights objectForKey:coverNumber];
 		if (coverImageHeightNumber) {
-			[aCover setImage:coverImage originalImageHeight:[coverImageHeightNumber floatValue] reflectionFraction:self.reflectionFraction];
+			[aCover setImage:coverImage originalImageHeight:[coverImageHeightNumber floatValue]];
 		}
 	} else {
-		[aCover setImage:defaultImage originalImageHeight:defaultImageHeight reflectionFraction:self.reflectionFraction];
+		[aCover setImage:defaultImage originalImageHeight:defaultImageHeight];
 		[self.dataSource openFlowView:self requestImageForIndex:aCover.number];
 	}
 }
@@ -355,7 +357,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	// If this cover is onscreen, set its image and call layoutCover.
 	AFItemView *aCover = (AFItemView *)[onScreenCovers objectForKey:[NSNumber numberWithInt:index]];
 	if (aCover) {
-		[aCover setImage:imageWithReflection originalImageHeight:image.size.height reflectionFraction:self.reflectionFraction];
+		[aCover setImage:imageWithReflection originalImageHeight:image.size.height];
 		[self layoutCover:aCover inPosition:aCover.number selectedCover:selectedCoverView.number animated:NO];
 	}
 }
@@ -512,11 +514,12 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 			//Add to screen. 
 			AFItemView *cover = [onScreenCovers objectForKey:[NSNumber numberWithInt:i]];
 			if (cover == nil) {
+				NSLog(@"Loading Cover ******************************** %d", i);
 				cover = [self coverForIndex:i];;
 				[onScreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
 			}
 			[self updateCoverImage:cover];
-			cover.layer.name = [NSString stringWithFormat:@"Cover %d", i];
+			cover.layer.name = [NSString stringWithFormat:@"Cover %d:%d", i, cover.number];
 			[self.layer addSublayer:cover.layer];
 		}
 	}

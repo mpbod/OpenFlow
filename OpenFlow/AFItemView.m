@@ -46,7 +46,7 @@
 	return self;
 }
 
-- (void)setImage:(UIImage *)newImage originalImageHeight:(CGFloat)imageHeight reflectionFraction:(CGFloat)reflectionFraction {
+- (void)setImage:(UIImage *)newImage originalImageHeight:(CGFloat)imageHeight {
 	[imageView setImage:newImage];
 	originalImageHeight = imageHeight;
 	self.frame = CGRectMake(0, 0, newImage.size.width, newImage.size.height);
