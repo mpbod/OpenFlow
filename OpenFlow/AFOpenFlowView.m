@@ -139,6 +139,19 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	
 }
 
+- (void)setDefaults {
+	NSLog(@"Defaults set");
+	self.coverSpacing = COVER_SPACING;
+	self.centerCoverOffset = CENTER_COVER_OFFSET;
+	self.sideCoverAngle = SIDE_COVER_ANGLE;
+	self.sideCoverZPosition = SIDE_COVER_ZPOSITION;
+	self.coverBuffer = COVER_BUFFER;
+	self.dragDivisor = DRAG_DIVISOR;
+	self.reflectionFraction = REFLECTION_FRACTION;
+	self.coverHeightFraction = COVER_HEIGHT_FRACTION;
+	self.coverImageSize = COVER_IMAGE_SIZE; //TODO: Check this might not be used. 
+}
+
 - (void)setUpInitialState {
 	[self resetDataState]; 
 	
@@ -197,16 +210,16 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 - (void)layoutCovers:(NSInteger)selected fromCover:(NSInteger)lowerBound toCover:(NSInteger)upperBound {
 	AFItemView *cover;
 	NSNumber *coverNumber;
+	NSLog(@"Laying out following covers: %@", self.onScreenCovers);
 	for (NSInteger i = lowerBound; i <= upperBound; i++) {
 		if (i < 0) {
-			coverNumber = [NSNumber numberWithInt:i + [onScreenCovers count]];
-		} else if (i > [onScreenCovers count] - 1) {
-			coverNumber = [NSNumber numberWithInt:i - [onScreenCovers count]];
+			coverNumber = [NSNumber numberWithInt:i + [self.onScreenCovers count]];
+		} else if (i > [self.onScreenCovers count] - 1) {
+			coverNumber = [NSNumber numberWithInt:i - [self.onScreenCovers count]];
 		} else {
 			coverNumber = [NSNumber numberWithInt:i];
 		}
-		
-		cover = (AFItemView *)[onScreenCovers objectForKey:coverNumber];
+		cover = (AFItemView *)[self.onScreenCovers objectForKey:coverNumber];
 		[self layoutCover:cover inPosition:i selectedCover:selected animated:YES];
 	}
 }
@@ -283,23 +296,13 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 #pragma mark View Management 
 
 - (void)awakeFromNib {
-	
+	[self setDefaults];
 	[self setUpInitialState];
 }
 
 - (id)initWithFrame:(CGRect)frame {
 	if (self = [super initWithFrame:frame]) {
-		NSLog(@"Defaults set");
-		self.coverSpacing = COVER_SPACING;
-		self.centerCoverOffset = CENTER_COVER_OFFSET;
-		self.sideCoverAngle = SIDE_COVER_ANGLE;
-		self.sideCoverZPosition = SIDE_COVER_ZPOSITION;
-		self.coverBuffer = COVER_BUFFER;
-		self.dragDivisor = DRAG_DIVISOR;
-		self.reflectionFraction = REFLECTION_FRACTION;
-		self.coverHeightFraction = COVER_HEIGHT_FRACTION;
-		self.coverImageSize = COVER_IMAGE_SIZE; //TODO: Check this might not be used. 
-		
+
 		[self setUpInitialState];
 	}
 	
@@ -319,7 +322,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	
 	int i = 0; 
 	for (CALayer *layer in [self.layer sublayers]) {
-		NSLog(@"%d Sub Layers - %0.0f:%0.0f:%0.0f", i++, layer.position.x, layer.position.y, layer.zPosition);
+		NSLog(@"%d Sub Layers - %@ - %0.0f:%0.0f:%0.0f", i++, layer.name, layer.position.x, layer.position.y, layer.zPosition);
 	}
 }	
 
@@ -513,6 +516,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 				[onScreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
 			}
 			[self updateCoverImage:cover];
+			cover.layer.name = [NSString stringWithFormat:@"Cover %d", i];
 			[self.layer addSublayer:cover.layer];
 		}
 	}
