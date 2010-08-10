@@ -48,7 +48,17 @@
 
 @synthesize dataSource; 
 @synthesize viewDelegate;
+
 @synthesize continousLoop; 
+@synthesize coverSpacing; 
+@synthesize centerCoverOffset; 
+@synthesize sideCoverAngle; 
+@synthesize sideCoverZPosition; 
+@synthesize coverBuffer; 
+@synthesize dragDivisor; 
+@synthesize reflectionFraction; 
+@synthesize coverHeightFraction; 
+@synthesize coverImageSize; 
 
 @synthesize numberOfImages; 
 @synthesize defaultImage;
@@ -78,8 +88,6 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	self.onScreenCovers = nil;
 	self.coverImages = nil; 
 	self.coverImageHeights = nil; 
-	
-	//[flipViewShown release];
 	
 	[super dealloc];
 }
@@ -145,9 +153,9 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	
 	// Set up the cover's left & right transforms.
 	leftTransform = CATransform3DIdentity;
-	leftTransform = CATransform3DRotate(leftTransform, SIDE_COVER_ANGLE, 0.0f, 1.0f, 0.0f);
+	leftTransform = CATransform3DRotate(leftTransform, self.sideCoverAngle, 0.0f, 1.0f, 0.0f);
 	rightTransform = CATransform3DIdentity;
-	rightTransform = CATransform3DRotate(rightTransform, SIDE_COVER_ANGLE, 0.0f, -1.0f, 0.0f);
+	rightTransform = CATransform3DRotate(rightTransform, self.sideCoverAngle, 0.0f, -1.0f, 0.0f);
 	
 	// Set some perspective
 	CATransform3D sublayerTransform = CATransform3DIdentity;
@@ -176,10 +184,10 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	if (coverImage) {
 		NSNumber *coverImageHeightNumber = (NSNumber *)[coverImageHeights objectForKey:coverNumber];
 		if (coverImageHeightNumber) {
-			[aCover setImage:coverImage originalImageHeight:[coverImageHeightNumber floatValue] reflectionFraction:REFLECTION_FRACTION];
+			[aCover setImage:coverImage originalImageHeight:[coverImageHeightNumber floatValue] reflectionFraction:self.reflectionFraction];
 		}
 	} else {
-		[aCover setImage:defaultImage originalImageHeight:defaultImageHeight reflectionFraction:REFLECTION_FRACTION];
+		[aCover setImage:defaultImage originalImageHeight:defaultImageHeight reflectionFraction:self.reflectionFraction];
 		[self.dataSource openFlowView:self requestImageForIndex:aCover.number];
 	}
 }
@@ -209,15 +217,15 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 		   animated:(Boolean)animated {
 	
 	CATransform3D newTransform;
-	CGFloat newZPosition = SIDE_COVER_ZPOSITION;
+	CGFloat newZPosition = self.sideCoverZPosition;
 	CGPoint newPosition;
 	
 	newPosition.x = (self.bounds.size.width / 2) + dragOffset;
-	newPosition.y = (self.bounds.size.height / 2) + (defaultImageHeight * COVER_HEIGHT_FRACTION);
+	newPosition.y = (self.bounds.size.height / 2) + (defaultImageHeight * self.coverHeightFraction);
 	
 	NSInteger numberFromCover = position - selectedIndex; 
 	NSLog(@"Laying out cover %d in slot %d", aCover.number, numberFromCover);
-	newPosition.x += numberFromCover * CENTER_COVER_OFFSET; 
+	newPosition.x += numberFromCover * self.centerCoverOffset; 
 	
 	if (position < selectedIndex) {
 		newTransform = leftTransform; 
@@ -281,6 +289,17 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 
 - (id)initWithFrame:(CGRect)frame {
 	if (self = [super initWithFrame:frame]) {
+		NSLog(@"Defaults set");
+		self.coverSpacing = COVER_SPACING;
+		self.centerCoverOffset = CENTER_COVER_OFFSET;
+		self.sideCoverAngle = SIDE_COVER_ANGLE;
+		self.sideCoverZPosition = SIDE_COVER_ZPOSITION;
+		self.coverBuffer = COVER_BUFFER;
+		self.dragDivisor = DRAG_DIVISOR;
+		self.reflectionFraction = REFLECTION_FRACTION;
+		self.coverHeightFraction = COVER_HEIGHT_FRACTION;
+		self.coverImageSize = COVER_IMAGE_SIZE; //TODO: Check this might not be used. 
+		
 		[self setUpInitialState];
 	}
 	
@@ -290,11 +309,11 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 - (void) layoutSubviews {	
 	if (self.continousLoop) {
 		[self layoutCovers:self.selectedCoverView.number 
-				 fromCover:self.selectedCoverView.number - COVER_BUFFER 
-				   toCover:self.selectedCoverView.number + COVER_BUFFER];
+				 fromCover:self.selectedCoverView.number - self.coverBuffer 
+				   toCover:self.selectedCoverView.number + self.coverBuffer];
 	} else {
-		NSInteger lowerBound = MAX(0, self.selectedCoverView.number - COVER_BUFFER);
-		NSInteger upperBound = MIN(self.numberOfImages - 1, self.selectedCoverView.number + COVER_BUFFER);
+		NSInteger lowerBound = MAX(0, self.selectedCoverView.number - self.coverBuffer);
+		NSInteger upperBound = MIN(self.numberOfImages - 1, self.selectedCoverView.number + self.coverBuffer);
 		[self layoutCovers:self.selectedCoverView.number fromCover:lowerBound toCover:upperBound];	
 	}
 	
@@ -307,8 +326,8 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 - (void)setNumberOfImages:(NSInteger)newNumberOfImages {
 	numberOfImages = newNumberOfImages;
 
-	NSInteger lowerBound = MAX(0, selectedCoverView.number - COVER_BUFFER);
-	NSInteger upperBound = MIN(self.numberOfImages - 1, selectedCoverView.number + COVER_BUFFER);
+	NSInteger lowerBound = MAX(0, selectedCoverView.number - self.coverBuffer);
+	NSInteger upperBound = MIN(self.numberOfImages - 1, selectedCoverView.number + self.coverBuffer);
 	
 	if (selectedCoverView) {
 		[self layoutCovers:selectedCoverView.number fromCover:lowerBound toCover:upperBound];
@@ -320,12 +339,12 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 - (void)setDefaultImage:(UIImage *)newDefaultImage {
 	[defaultImage release];
 	defaultImageHeight = newDefaultImage.size.height;
-	defaultImage = [[newDefaultImage addImageReflection:REFLECTION_FRACTION] retain];
+	defaultImage = [[newDefaultImage addImageReflection:self.reflectionFraction] retain];
 }
 
 - (void)setImage:(UIImage *)image forIndex:(NSInteger)index {
 	// Create a reflection for this image.
-	UIImage *imageWithReflection = [image addImageReflection:REFLECTION_FRACTION];
+	UIImage *imageWithReflection = [image addImageReflection:self.reflectionFraction];
 	NSNumber *coverNumber = [NSNumber numberWithInt:index];
 	[coverImages setObject:imageWithReflection forKey:coverNumber];
 	[coverImageHeights setObject:[NSNumber numberWithFloat:image.size.height] forKey:coverNumber];
@@ -333,7 +352,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	// If this cover is onscreen, set its image and call layoutCover.
 	AFItemView *aCover = (AFItemView *)[onScreenCovers objectForKey:[NSNumber numberWithInt:index]];
 	if (aCover) {
-		[aCover setImage:imageWithReflection originalImageHeight:image.size.height reflectionFraction:REFLECTION_FRACTION];
+		[aCover setImage:imageWithReflection originalImageHeight:image.size.height reflectionFraction:self.reflectionFraction];
 		[self layoutCover:aCover inPosition:aCover.number selectedCover:selectedCoverView.number animated:NO];
 	}
 }
@@ -369,9 +388,9 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	CGPoint movedPoint = [[touches anyObject] locationInView:self];
 	dragOffset = (movedPoint.x - startPoint.x);  // / DRAG_DIVISOR; //Ignore the drag divisor for the moment. 
 
-	NSInteger newCoverDiff = (dragOffset * -1) / COVER_SPACING;
+	NSInteger newCoverDiff = (dragOffset * -1) / self.coverSpacing;
 	
-	dragOffset = dragOffset + (newCoverDiff * COVER_SPACING); 
+	dragOffset = dragOffset + (newCoverDiff * self.coverSpacing); 
 	
 	if (newCoverDiff != 0) { 
 		NSInteger newSelectedCover = selectedCoverAtDragStart + newCoverDiff;//TODO: Calculate from the original cover selected!
@@ -441,28 +460,28 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	NSMutableIndexSet *onScreenCoversIndex; 
 	
 	if (self.continousLoop) {
-		if (selectedCoverIndex - COVER_BUFFER < 0 && self.numberOfImages < selectedCoverIndex + COVER_BUFFER + 1) {
+		if (selectedCoverIndex - self.coverBuffer < 0 && self.numberOfImages < selectedCoverIndex + self.coverBuffer + 1) {
 			onScreenCoversIndex = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, self.numberOfImages - 1)];
 		} else {
-			if (selectedCoverView.number - COVER_BUFFER < 0) {
+			if (selectedCoverView.number - self.coverBuffer < 0) {
 				onScreenCoversIndex = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 
-																								selectedCoverIndex + COVER_BUFFER + 1)];
+																								selectedCoverIndex + self.coverBuffer + 1)];
 	
-				[onScreenCoversIndex addIndexesInRange:NSMakeRangeToIndex(self.numberOfImages + selectedCoverView.number - COVER_BUFFER, self.numberOfImages - 1)]; //Covers at the end for loop 
+				[onScreenCoversIndex addIndexesInRange:NSMakeRangeToIndex(self.numberOfImages + selectedCoverView.number - self.coverBuffer, self.numberOfImages - 1)]; //Covers at the end for loop 
 				
-			} else if (self.numberOfImages < selectedCoverView.number + COVER_BUFFER + 1) {
-				onScreenCoversIndex = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRangeToIndex(selectedCoverIndex - COVER_BUFFER, 
+			} else if (self.numberOfImages < selectedCoverView.number + self.coverBuffer + 1) {
+				onScreenCoversIndex = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRangeToIndex(selectedCoverIndex - self.coverBuffer, 
 																								self.numberOfImages - 1)];
-				[onScreenCoversIndex addIndexesInRange:NSMakeRange(0, selectedCoverIndex + COVER_BUFFER - self.numberOfImages)]; //Covers at the start for loop
+				[onScreenCoversIndex addIndexesInRange:NSMakeRange(0, selectedCoverIndex + self.coverBuffer - self.numberOfImages)]; //Covers at the start for loop
 		
 			} else {
-				onScreenCoversIndex = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRangeToIndex(selectedCoverIndex - COVER_BUFFER, 
-																								selectedCoverIndex + COVER_BUFFER + 1)];
+				onScreenCoversIndex = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRangeToIndex(selectedCoverIndex - self.coverBuffer, 
+																								selectedCoverIndex + self.coverBuffer + 1)];
 			}
 		}
 	} else {
-		onScreenCoversIndex = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRangeToIndex(MAX(0, selectedCoverIndex - COVER_BUFFER), 
-																						MIN(self.numberOfImages - 1, selectedCoverIndex + COVER_BUFFER))];
+		onScreenCoversIndex = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRangeToIndex(MAX(0, selectedCoverIndex - self.coverBuffer), 
+																						MIN(self.numberOfImages - 1, selectedCoverIndex + self.coverBuffer))];
 	}	
 	return onScreenCoversIndex; 
 }

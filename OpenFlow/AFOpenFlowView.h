@@ -33,7 +33,18 @@
 @interface AFOpenFlowView : UIView {
 	id <AFOpenFlowViewDataSource> dataSource;
 	id <AFOpenFlowViewDelegate> viewDelegate;
+	
+	//Open Flow Configuration
 	BOOL continousLoop; 
+	CGFloat coverSpacing; 
+	CGFloat centerCoverOffset; 
+	CGFloat sideCoverAngle; 
+	CGFloat sideCoverZPosition; 
+	NSInteger coverBuffer; 
+	CGFloat dragDivisor; 
+	CGFloat reflectionFraction; 
+	CGFloat coverHeightFraction; 
+	CGFloat coverImageSize; 
 	
 	NSMutableSet *offScreenCovers;
 	NSMutableDictionary *onScreenCovers;
@@ -65,7 +76,17 @@
 
 @property (nonatomic, assign) id <AFOpenFlowViewDataSource> dataSource;
 @property (nonatomic, assign) id <AFOpenFlowViewDelegate> viewDelegate;
+
 @property (nonatomic, assign) BOOL continousLoop; 
+@property (nonatomic, assign) CGFloat coverSpacing; 
+@property (nonatomic, assign) CGFloat centerCoverOffset; 
+@property (nonatomic, assign) CGFloat sideCoverAngle; 
+@property (nonatomic, assign) CGFloat sideCoverZPosition; 
+@property (nonatomic, assign) NSInteger coverBuffer; 
+@property (nonatomic, assign) CGFloat dragDivisor; 
+@property (nonatomic, assign) CGFloat reflectionFraction; 
+@property (nonatomic, assign) CGFloat coverHeightFraction; 
+@property (nonatomic, assign) CGFloat coverImageSize; 
 
 @property (nonatomic, retain) NSMutableSet *offScreenCovers;
 @property (nonatomic, retain) NSMutableDictionary *onScreenCovers;
