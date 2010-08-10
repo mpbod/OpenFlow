@@ -113,10 +113,24 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	self.defaultImage = [self.dataSource defaultImage];
 	
 	// Create data holders for onscreen & offscreen covers & UIImage objects.
-	self.coverImages = [[NSMutableDictionary alloc] init];
-	self.coverImageHeights = [[NSMutableDictionary alloc] init];
-	self.offscreenCovers = [[NSMutableSet alloc] init];
-	self.onscreenCovers = [[NSMutableDictionary alloc] init];
+	self.coverImages = [[[NSMutableDictionary alloc] init] autorelease];
+	self.coverImageHeights = [[[NSMutableDictionary alloc] init] autorelease];
+	
+	if (self.offscreenCovers == nil) {
+		self.offscreenCovers = [[[NSMutableSet alloc] init] autorelease];
+	}
+	
+	if (self.onscreenCovers == nil) {
+		self.onscreenCovers = [[[NSMutableDictionary alloc] init] autorelease];
+	} else {
+		for (AFItemView *cover in self.onscreenCovers) {
+			[cover removeFromSuperview]; 
+			[self.offscreenCovers addObject:cover];
+		}
+		[self.onscreenCovers removeAllObjects];
+	}
+		
+	
 }
 
 - (void)setUpInitialState {
@@ -147,7 +161,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 
 - (AFItemView *)coverForIndex:(NSInteger)coverIndex {
 	AFItemView *coverView = [self dequeueReusableCover];
-	
+	NSLog(@"Creating cover %d", coverIndex);
 	if (!coverView) {
 		coverView = [[[AFItemView alloc] initWithFrame:CGRectZero] autorelease];
 	}
@@ -177,7 +191,6 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 - (void)layoutCovers:(NSInteger)selected fromCover:(NSInteger)lowerBound toCover:(NSInteger)upperBound {
 	AFItemView *cover;
 	NSNumber *coverNumber;
-	NSLog(@"Laying out covers from %d to %d", lowerBound, upperBound);
 	for (NSInteger i = lowerBound; i <= upperBound; i++) {
 		if (i < 0) {
 			coverNumber = [NSNumber numberWithInt:i + [onscreenCovers count]];
@@ -196,8 +209,6 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 		 inPosition:(NSInteger)position 
 	  selectedCover:(NSInteger)selectedIndex 
 		   animated:(Boolean)animated {
-	
-	
 	
 	CATransform3D newTransform;
 	CGFloat newZPosition = SIDE_COVER_ZPOSITION;
@@ -224,6 +235,8 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 		[UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
 		[UIView setAnimationBeginsFromCurrentState:YES];
 	}
+	
+	NSLog(@"New position (%d): %0.1f:%0.1f:%0.1f", aCover.number ,newPosition.x, newPosition.y, newZPosition);
 	
 	aCover.opaque = NO; 
 	aCover.layer.transform = newTransform;
@@ -285,6 +298,11 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 		NSInteger lowerBound = MAX(0, self.selectedCoverView.number - COVER_BUFFER);
 		NSInteger upperBound = MIN(self.numberOfImages - 1, self.selectedCoverView.number + COVER_BUFFER);
 		[self layoutCovers:self.selectedCoverView.number fromCover:lowerBound toCover:upperBound];	
+	}
+	
+	int i = 0; 
+	for (CALayer *layer in [self.layer sublayers]) {
+		NSLog(@"%d Sub Layers - %0.0f:%0.0f:%0.0f", i++, layer.position.x, layer.position.y, layer.zPosition);
 	}
 }	
 
@@ -462,6 +480,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	for (AFItemView *cover in [self.onscreenCovers allValues]) {	//TODO: iOS4.0 enumerateKeysAndObjectsUsingBlock:
 		if (! [onScreenCoversIndex containsIndex:cover.number]) {
 			[self.offscreenCovers addObject:cover];
+			[cover.layer removeFromSuperlayer];
 			[cover removeFromSuperview];
 			[self.onscreenCovers removeObjectForKey:[NSNumber numberWithInt:cover.number]];
 		}

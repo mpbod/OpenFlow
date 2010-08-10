@@ -81,6 +81,11 @@
 	[imageView setFrame:newFrame];
 }
 
+- (NSString *)description {
+	return [NSString stringWithFormat:@"AFItemView - Cover %d layer position: %0.0f:%0.0f:%0.0f", self.number,
+			self.layer.position.x, self.layer.position.y, self.layer.zPosition]; 
+}
+
 - (void)dealloc {
 	[imageView release];
 	
