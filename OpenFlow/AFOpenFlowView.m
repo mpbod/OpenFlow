@@ -56,8 +56,8 @@ const static CGFloat kReflectionFraction = REFLECTION_FRACTION;
 @synthesize defaultImage;
 @synthesize selectedCoverView;
 
-@synthesize offscreenCovers;
-@synthesize onscreenCovers;
+@synthesize offScreenCovers;
+@synthesize onScreenCovers;
 @synthesize coverImages;
 @synthesize coverImageHeights;
 
@@ -76,8 +76,8 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	self.defaultImage = nil; 
 	self.selectedCoverView = nil; 
 	
-	self.offscreenCovers = nil; 
-	self.onscreenCovers = nil;
+	self.offScreenCovers = nil; 
+	self.onScreenCovers = nil;
 	self.coverImages = nil; 
 	self.coverImageHeights = nil; 
 	
@@ -116,18 +116,18 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	self.coverImages = [[[NSMutableDictionary alloc] init] autorelease];
 	self.coverImageHeights = [[[NSMutableDictionary alloc] init] autorelease];
 	
-	if (self.offscreenCovers == nil) {
-		self.offscreenCovers = [[[NSMutableSet alloc] init] autorelease];
+	if (self.offScreenCovers == nil) {
+		self.offScreenCovers = [[[NSMutableSet alloc] init] autorelease];
 	}
 	
-	if (self.onscreenCovers == nil) {
-		self.onscreenCovers = [[[NSMutableDictionary alloc] init] autorelease];
+	if (self.onScreenCovers == nil) {
+		self.onScreenCovers = [[[NSMutableDictionary alloc] init] autorelease];
 	} else {
-		for (AFItemView *cover in self.onscreenCovers) {
+		for (AFItemView *cover in [self.onScreenCovers allValues]) {
 			[cover removeFromSuperview]; 
-			[self.offscreenCovers addObject:cover];
+			[self.offScreenCovers addObject:cover];
 		}
-		[self.onscreenCovers removeAllObjects];
+		[self.onScreenCovers removeAllObjects];
 	}
 		
 	
@@ -193,14 +193,14 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	NSNumber *coverNumber;
 	for (NSInteger i = lowerBound; i <= upperBound; i++) {
 		if (i < 0) {
-			coverNumber = [NSNumber numberWithInt:i + [onscreenCovers count]];
-		} else if (i > [onscreenCovers count] - 1) {
-			coverNumber = [NSNumber numberWithInt:i - [onscreenCovers count]];
+			coverNumber = [NSNumber numberWithInt:i + [onScreenCovers count]];
+		} else if (i > [onScreenCovers count] - 1) {
+			coverNumber = [NSNumber numberWithInt:i - [onScreenCovers count]];
 		} else {
 			coverNumber = [NSNumber numberWithInt:i];
 		}
 		
-		cover = (AFItemView *)[onscreenCovers objectForKey:coverNumber];
+		cover = (AFItemView *)[onScreenCovers objectForKey:coverNumber];
 		[self layoutCover:cover inPosition:i selectedCover:selected animated:YES];
 	}
 }
@@ -252,17 +252,17 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 
 
 - (AFItemView *)dequeueReusableCover {
-	AFItemView *aCover = [offscreenCovers anyObject];
+	AFItemView *aCover = [offScreenCovers anyObject];
 	if (aCover) {
 		[[aCover retain] autorelease];
-		[offscreenCovers removeObject:aCover];
+		[offScreenCovers removeObject:aCover];
 	}
 	return aCover;
 }
 
 - (AFItemView *)findCoverOnscreen:(CALayer *)targetLayer {
 	// See if this layer is one of our covers.
-	NSEnumerator *coverEnumerator = [onscreenCovers objectEnumerator];
+	NSEnumerator *coverEnumerator = [onScreenCovers objectEnumerator];
 	AFItemView *aCover = nil;
 	
 	while (aCover = (AFItemView *)[coverEnumerator nextObject]) {
@@ -333,7 +333,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	[coverImageHeights setObject:[NSNumber numberWithFloat:image.size.height] forKey:coverNumber];
 	
 	// If this cover is onscreen, set its image and call layoutCover.
-	AFItemView *aCover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:index]];
+	AFItemView *aCover = (AFItemView *)[onScreenCovers objectForKey:[NSNumber numberWithInt:index]];
 	if (aCover) {
 		[aCover setImage:imageWithReflection originalImageHeight:image.size.height reflectionFraction:kReflectionFraction];
 		[self layoutCover:aCover inPosition:aCover.number selectedCover:selectedCoverView.number animated:NO];
@@ -477,12 +477,12 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	
 	NSIndexSet *onScreenCoversIndex = [self coverIndexForSelectedCoverIndex:newSelectedCover]; 
 	
-	for (AFItemView *cover in [self.onscreenCovers allValues]) {	//TODO: iOS4.0 enumerateKeysAndObjectsUsingBlock:
+	for (AFItemView *cover in [self.onScreenCovers allValues]) {	//TODO: iOS4.0 enumerateKeysAndObjectsUsingBlock:
 		if (! [onScreenCoversIndex containsIndex:cover.number]) {
-			[self.offscreenCovers addObject:cover];
+			[self.offScreenCovers addObject:cover];
 			[cover.layer removeFromSuperlayer];
 			[cover removeFromSuperview];
-			[self.onscreenCovers removeObjectForKey:[NSNumber numberWithInt:cover.number]];
+			[self.onScreenCovers removeObjectForKey:[NSNumber numberWithInt:cover.number]];
 		}
 	}
 
@@ -490,17 +490,17 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 		//Check to see if the cover is already in the covers list
 		if ([onScreenCoversIndex containsIndex:i]) { //TODO: Implement using enumerateIndexesUsingBlock: iOS 4.0 only!
 			//Add to screen. 
-			AFItemView *cover = [onscreenCovers objectForKey:[NSNumber numberWithInt:i]];
+			AFItemView *cover = [onScreenCovers objectForKey:[NSNumber numberWithInt:i]];
 			if (cover == nil) {
 				cover = [self coverForIndex:i];;
-				[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
+				[onScreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
 			}
 			[self updateCoverImage:cover];
 			[self.layer addSublayer:cover.layer];
 		}
 	}
 	
-	self.selectedCoverView = [onscreenCovers objectForKey:[NSNumber numberWithInt:newSelectedCover]];
+	self.selectedCoverView = [onScreenCovers objectForKey:[NSNumber numberWithInt:newSelectedCover]];
 	
 	[self layoutSubviews];
 }

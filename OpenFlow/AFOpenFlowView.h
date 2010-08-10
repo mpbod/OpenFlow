@@ -35,8 +35,8 @@
 	id <AFOpenFlowViewDelegate> viewDelegate;
 	BOOL continousLoop; 
 	
-	NSMutableSet *offscreenCovers;
-	NSMutableDictionary *onscreenCovers;
+	NSMutableSet *offScreenCovers;
+	NSMutableDictionary *onScreenCovers;
 	NSMutableDictionary	*coverImages;
 	NSMutableDictionary	*coverImageHeights;
 	UIImage	*defaultImage;
@@ -67,8 +67,8 @@
 @property (nonatomic, assign) id <AFOpenFlowViewDelegate> viewDelegate;
 @property (nonatomic, assign) BOOL continousLoop; 
 
-@property (nonatomic, retain) NSMutableSet *offscreenCovers;
-@property (nonatomic, retain) NSMutableDictionary *onscreenCovers;
+@property (nonatomic, retain) NSMutableSet *offScreenCovers;
+@property (nonatomic, retain) NSMutableDictionary *onScreenCovers;
 @property (nonatomic, retain) NSMutableDictionary *coverImages;
 @property (nonatomic, retain) NSMutableDictionary *coverImageHeights;
 
