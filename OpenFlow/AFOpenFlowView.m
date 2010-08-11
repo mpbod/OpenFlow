@@ -387,12 +387,17 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	
 	if (newCoverDiff != 0) { 
 		NSInteger newSelectedCover = selectedCoverAtDragStart + newCoverDiff;//TODO: Calculate from the original cover selected!
-		if (newSelectedCover < 0) {
-			[self setSelectedCover:0];
-		} else if (newSelectedCover >= self.numberOfImages) {
-			[self setSelectedCover:self.numberOfImages - 1];
-		} else {
+		
+		if (self.continousLoop) {
 			[self setSelectedCover:newSelectedCover];
+		} else {
+			if (newSelectedCover < 0) {
+				[self setSelectedCover:0];
+			} else if (newSelectedCover >= self.numberOfImages) {
+				[self setSelectedCover:self.numberOfImages - 1];
+			} else {
+				[self setSelectedCover:newSelectedCover];
+			}
 		}
 	}
 	
