@@ -389,6 +389,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 		NSInteger newSelectedCover = selectedCoverAtDragStart + newCoverDiff;//TODO: Calculate from the original cover selected!
 		
 		if (self.continousLoop) {
+			NSLog(@"New Selected Cover: %d", newSelectedCover);
 			[self setSelectedCover:newSelectedCover];
 		} else {
 			if (newSelectedCover < 0) {
@@ -471,7 +472,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 			} else if (self.numberOfImages < selectedCoverView.number + self.coverBuffer) {
 				onScreenCoversIndex = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRangeToIndex(selectedCoverIndex - self.coverBuffer, 
 																								self.numberOfImages - 1)];
-				[onScreenCoversIndex addIndexesInRange:NSMakeRange(0, selectedCoverIndex + self.coverBuffer - self.numberOfImages)]; //Covers at the start for loop
+				[onScreenCoversIndex addIndexesInRange:NSMakeRange(0, self.numberOfImages - (selectedCoverIndex - self.coverBuffer))]; //Covers at the start for loop
 		
 			} else {
 				onScreenCoversIndex = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRangeToIndex(selectedCoverIndex - self.coverBuffer, 
@@ -519,6 +520,11 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 				selectedCover:newSelectedCover 
 					 animated:NO];
 		}
+	}
+	
+	if (newSelectedCover < 0) {
+		newSelectedCover = self.numberOfImages + newSelectedCover; 
+		NSLog(@"Cover flipped to %d", newSelectedCover);
 	}
 	
 	self.selectedCoverView = [onScreenCovers objectForKey:[NSNumber numberWithInt:newSelectedCover]];
