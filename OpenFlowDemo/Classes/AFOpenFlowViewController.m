@@ -37,7 +37,6 @@
 }
 
 - (void)awakeFromNib {
-	self.openFlowView.continousLoop = YES; 
 	loadImagesOperationQueue = [[NSOperationQueue alloc] init];
 	UIAlertView *openFlowImageSourceAlertView = [[UIAlertView alloc] initWithTitle:@"OpenFlow Demo Data Source" 
 																		   message:@"Sample Load method?" 
@@ -62,7 +61,9 @@
 }
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
+	self.openFlowView.continousLoop = YES; 
 	[(AFOpenFlowView *)self.view reloadData];
+	
 	
 	// Assume we're in the initial alert view.
 	if (buttonIndex == 0) {

@@ -463,7 +463,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	
 				[onScreenCoversIndex addIndexesInRange:NSMakeRangeToIndex(self.numberOfImages + selectedCoverView.number - self.coverBuffer, self.numberOfImages - 1)]; //Covers at the end for loop 
 				
-			} else if (self.numberOfImages < selectedCoverView.number + self.coverBuffer + 1) {
+			} else if (self.numberOfImages < selectedCoverView.number + self.coverBuffer) {
 				onScreenCoversIndex = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRangeToIndex(selectedCoverIndex - self.coverBuffer, 
 																								self.numberOfImages - 1)];
 				[onScreenCoversIndex addIndexesInRange:NSMakeRange(0, selectedCoverIndex + self.coverBuffer - self.numberOfImages)]; //Covers at the start for loop
