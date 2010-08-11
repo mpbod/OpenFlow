@@ -53,15 +53,10 @@
 	UIImage	*defaultImage;
 	CGFloat	defaultImageHeight;
     
-	//NSInteger lowerVisibleCover;
-	//NSInteger upperVisibleCover;
 	NSInteger numberOfImages;
 	NSInteger beginningCover;
 	
 	AFItemView *selectedCoverView;
-
-	//NSDictionary *flipViewShown;
-	//UIView *flippedContainerView;
 	
 	CATransform3D leftTransform, rightTransform;
 	
