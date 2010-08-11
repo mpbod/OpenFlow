@@ -37,7 +37,7 @@
 }
 
 - (void)awakeFromNib {
-	openFlowView.continousLoop = NO; 
+	self.openFlowView.continousLoop = YES; 
 	loadImagesOperationQueue = [[NSOperationQueue alloc] init];
 	UIAlertView *openFlowImageSourceAlertView = [[UIAlertView alloc] initWithTitle:@"OpenFlow Demo Data Source" 
 																		   message:@"Sample Load method?" 

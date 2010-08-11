@@ -314,11 +314,6 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 		NSInteger upperBound = MIN(self.numberOfImages - 1, self.selectedCoverView.number + self.coverBuffer);
 		[self layoutCovers:self.selectedCoverView.number fromCover:lowerBound toCover:upperBound];	
 	}
-	
-	int i = 0; 
-	for (CALayer *layer in [self.layer sublayers]) {
-		NSLog(@"%d Sub Layers - %@ - %0.0f:%0.0f:%0.0f", i++, layer.name, layer.position.x, layer.position.y, layer.zPosition);
-	}
 }	
 
 - (void)setNumberOfImages:(NSInteger)newNumberOfImages {
