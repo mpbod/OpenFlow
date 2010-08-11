@@ -196,10 +196,10 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	if (coverImage) {
 		NSNumber *coverImageHeightNumber = (NSNumber *)[coverImageHeights objectForKey:coverNumber];
 		if (coverImageHeightNumber) {
-			[aCover setImage:coverImage originalImageHeight:[coverImageHeightNumber floatValue]];
+			[aCover setImage:coverImage];
 		}
 	} else {
-		[aCover setImage:defaultImage originalImageHeight:defaultImageHeight];
+		[aCover setImage:defaultImage];
 		[self.dataSource openFlowView:self requestImageForIndex:aCover.number];
 	}
 }
@@ -345,7 +345,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	// If this cover is onscreen, set its image and call layoutCover.
 	AFItemView *aCover = (AFItemView *)[onScreenCovers objectForKey:[NSNumber numberWithInt:index]];
 	if (aCover) {
-		[aCover setImage:imageWithReflection originalImageHeight:image.size.height];
+		[aCover setImage:imageWithReflection];
 		[self layoutCover:aCover inPosition:aCover.number selectedCover:selectedCoverView.number animated:NO];
 	}
 }

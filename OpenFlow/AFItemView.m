@@ -36,9 +36,9 @@
 		self.opaque = YES;
 	
 		// Image View
-		imageView = [[UIImageView alloc] initWithFrame:frame];
-		imageView.opaque = YES;
-		imageView.userInteractionEnabled = NO; //Needed for iOS 3.0, covers steal touch events otherwise.  
+		self.imageView = [[[UIImageView alloc] initWithFrame:frame] autorelease];
+		self.imageView.opaque = YES;
+		self.imageView.userInteractionEnabled = NO; //Needed for iOS 3.0, covers steal touch events otherwise.  
 		self.userInteractionEnabled = NO; //Needed for iOS 3.0, covers steal touch events otherwise.
 		[self addSubview:imageView];
 	}
@@ -46,15 +46,14 @@
 	return self;
 }
 
-- (void)setImage:(UIImage *)newImage originalImageHeight:(CGFloat)imageHeight {
-	[imageView setImage:newImage];
-	originalImageHeight = imageHeight;
+- (void)setImage:(UIImage *)newImage {
+	[self.imageView setImage:newImage];
 	self.frame = CGRectMake(0, 0, newImage.size.width, newImage.size.height);
 }
 
 - (void)setFrame:(CGRect)newFrame {
 	[super setFrame:newFrame];
-	[imageView setFrame:newFrame];
+	[self.imageView setFrame:newFrame];
 }
 
 - (NSString *)description {
@@ -63,7 +62,7 @@
 }
 
 - (void)dealloc {
-	[imageView release];
+	self.imageView = nil; 
 	[super dealloc];
 }
 

@@ -28,12 +28,11 @@
 @interface AFItemView : UIView {
 	UIImageView *imageView;
 	NSInteger number;
-	CGFloat	originalImageHeight;
 }
 
 @property (nonatomic, assign) NSInteger number;
 @property (nonatomic, retain) UIImageView *imageView;
 
-- (void)setImage:(UIImage *)newImage originalImageHeight:(CGFloat)imageHeight;
+- (void)setImage:(UIImage *)newImage;
 
 @end
