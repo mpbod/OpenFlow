@@ -199,7 +199,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 			[aCover setImage:coverImage];
 		}
 	} else {
-		[aCover setImage:defaultImage];
+		[aCover setImage:self.defaultImage];
 		[self.dataSource openFlowView:self requestImageForIndex:aCover.number];
 	}
 }
@@ -330,9 +330,8 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 }
 
 - (void)setDefaultImage:(UIImage *)newDefaultImage {
-	[defaultImage release];
 	defaultImageHeight = newDefaultImage.size.height;
-	defaultImage = [[newDefaultImage addImageReflection:self.reflectionFraction] retain];
+	self.defaultImage = [newDefaultImage addImageReflection:self.reflectionFraction];
 }
 
 - (void)setImage:(UIImage *)image forIndex:(NSInteger)index {
