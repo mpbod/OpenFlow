@@ -31,6 +31,7 @@
 @interface AFOpenFlowView (hidden)
 
 - (void)resetDataState;
+- (void)setDefaults;
 - (void)setUpInitialState;
 - (AFItemView *)coverForIndex:(NSInteger)coverIndex;
 - (void)updateCoverImage:(AFItemView *)aCover;
@@ -99,6 +100,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 		[ds retain]; 
 		[dataSource release];
 		dataSource = ds; 
+		[self setDefaults]; // This is needed or you will get errors loading from a nib!
 		[self reloadData];
 	}
 	
@@ -330,8 +332,15 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 }
 
 - (void)setDefaultImage:(UIImage *)newDefaultImage {
-	defaultImageHeight = newDefaultImage.size.height;
-	self.defaultImage = [newDefaultImage addImageReflection:self.reflectionFraction];
+	if (newDefaultImage != defaultImage) {
+		defaultImageHeight = newDefaultImage.size.height;
+		if (newDefaultImage) {
+			defaultImage = [[newDefaultImage addImageReflection:self.reflectionFraction] retain];
+		} else {
+			[defaultImage release]; 
+			defaultImage = nil; 
+		}
+	}
 }
 
 - (void)setImage:(UIImage *)image forIndex:(NSInteger)index {
@@ -388,7 +397,6 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 		NSInteger newSelectedCover = selectedCoverAtDragStart + newCoverDiff;//TODO: Calculate from the original cover selected!
 		
 		if (self.continousLoop) {
-			NSLog(@"New Selected Cover: %d", newSelectedCover);
 			[self setSelectedCover:newSelectedCover];
 		} else {
 			if (newSelectedCover < 0) {
@@ -523,7 +531,6 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	
 	if (newSelectedCover < 0) {
 		newSelectedCover = self.numberOfImages + newSelectedCover; 
-		NSLog(@"Cover flipped to %d", newSelectedCover);
 	}
 	
 	self.selectedCoverView = [onScreenCovers objectForKey:[NSNumber numberWithInt:newSelectedCover]];
