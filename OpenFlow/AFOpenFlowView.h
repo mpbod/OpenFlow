@@ -46,6 +46,8 @@
 	CGFloat coverHeightFraction; 
 	CGFloat coverImageSize; 
 	
+	UIColor *backingColor;
+	
 	NSMutableSet *offScreenCovers;
 	NSMutableDictionary *onScreenCovers;
 	NSMutableDictionary	*coverImages;
@@ -82,6 +84,8 @@
 @property (nonatomic, assign) CGFloat reflectionFraction; 
 @property (nonatomic, assign) CGFloat coverHeightFraction; 
 @property (nonatomic, assign) CGFloat coverImageSize; 
+
+@property (nonatomic, retain) UIColor *backingColor; 
 
 @property (nonatomic, retain) NSMutableSet *offScreenCovers;
 @property (nonatomic, retain) NSMutableDictionary *onScreenCovers;

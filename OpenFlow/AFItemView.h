@@ -25,14 +25,15 @@
 #import <UIKit/UIKit.h>
 
 
-@interface AFItemView : UIView {
-	UIImageView *imageView;
+@interface AFItemView : NSObject {
+	CALayer *imageLayer; 
 	NSInteger number;
 }
 
-@property (nonatomic, assign) NSInteger number;
-@property (nonatomic, retain) UIImageView *imageView;
+@property (nonatomic, assign) NSInteger number; 
+@property (nonatomic, retain) CALayer *imageLayer;
 
-- (void)setImage:(UIImage *)newImage;
+- (void)setImage:(UIImage *)newImage
+	backingColor:(UIColor *)backingColor;
 
 @end

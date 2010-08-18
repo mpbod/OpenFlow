@@ -61,6 +61,8 @@
 @synthesize coverHeightFraction; 
 @synthesize coverImageSize; 
 
+@synthesize backingColor; 
+
 @synthesize numberOfImages; 
 @synthesize defaultImage;
 @synthesize selectedCoverView;
@@ -132,8 +134,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 		self.onScreenCovers = [[[NSMutableDictionary alloc] init] autorelease];
 	} else {
 		for (AFItemView *cover in [self.onScreenCovers allValues]) {
-			[cover removeFromSuperview];
-			[cover.layer removeFromSuperlayer]; 
+			[cover.imageLayer removeFromSuperlayer]; 
 			[self.offScreenCovers addObject:cover];
 		}
 		[self.onScreenCovers removeAllObjects];
@@ -152,6 +153,8 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	self.reflectionFraction = REFLECTION_FRACTION;
 	self.coverHeightFraction = COVER_HEIGHT_FRACTION;
 	self.coverImageSize = COVER_IMAGE_SIZE; //TODO: Check this might not be used. 
+	
+	self.backingColor = self.backgroundColor; 
 }
 
 - (void)setUpInitialState {
@@ -184,10 +187,9 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	AFItemView *coverView = [self dequeueReusableCover];
 	
 	if (!coverView) {
-		coverView = [[[AFItemView alloc] initWithFrame:CGRectZero] autorelease];
+		coverView = [[[AFItemView alloc] init] autorelease];
 	}
 	
-	coverView.backgroundColor = self.backgroundColor;
 	coverView.number = coverIndex;
 	return coverView;
 }
@@ -198,10 +200,10 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	if (coverImage) {
 		NSNumber *coverImageHeightNumber = (NSNumber *)[coverImageHeights objectForKey:coverNumber];
 		if (coverImageHeightNumber) {
-			[aCover setImage:coverImage];
+			[aCover setImage:coverImage backingColor:self.backingColor];
 		}
 	} else {
-		[aCover setImage:self.defaultImage];
+		[aCover setImage:self.defaultImage backingColor:self.backingColor];
 		[self.dataSource openFlowView:self requestImageForIndex:aCover.number];
 	}
 }
@@ -254,10 +256,9 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 		[UIView setAnimationBeginsFromCurrentState:YES];
 	}
 
-	aCover.opaque = NO; 
-	aCover.layer.transform = newTransform;
-	aCover.layer.zPosition = newZPosition;
-	aCover.layer.position = newPosition;
+	aCover.imageLayer.transform = newTransform;
+	aCover.imageLayer.zPosition = newZPosition;
+	aCover.imageLayer.position = newPosition;
 	
 	if (animated) {
 		[UIView setAnimationDelegate:self];
@@ -282,7 +283,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	AFItemView *aCover = nil;
 	
 	while (aCover = (AFItemView *)[coverEnumerator nextObject]) {
-		if ([[aCover.imageView layer] isEqual:targetLayer]) {
+		if ([aCover.imageLayer isEqual:targetLayer]) {
 			return aCover;
 		}
 	}
@@ -353,7 +354,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	// If this cover is onscreen, set its image and call layoutCover.
 	AFItemView *aCover = (AFItemView *)[onScreenCovers objectForKey:[NSNumber numberWithInt:index]];
 	if (aCover) {
-		[aCover setImage:imageWithReflection];
+		[aCover setImage:imageWithReflection backingColor:self.backingColor];
 		[self layoutCover:aCover inPosition:aCover.number selectedCover:selectedCoverView.number animated:NO];
 	}
 }
@@ -504,8 +505,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	for (AFItemView *cover in [self.onScreenCovers allValues]) {	//TODO: iOS4.0 enumerateKeysAndObjectsUsingBlock:
 		if (! [onScreenCoversIndex containsIndex:cover.number]) {
 			[self.offScreenCovers addObject:cover];
-			//[cover.layer removeFromSuperlayer];
-			[cover removeFromSuperview];
+			[cover.imageLayer removeFromSuperlayer];
 			[self.onScreenCovers removeObjectForKey:[NSNumber numberWithInt:cover.number]];
 		}
 	}
@@ -520,8 +520,8 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 				[onScreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
 			}
 			[self updateCoverImage:cover];
-			cover.layer.name = [NSString stringWithFormat:@"Cover %d:%d", i, cover.number];
-			[self.layer addSublayer:cover.layer];
+			cover.imageLayer.name = [NSString stringWithFormat:@"Cover %d:%d", i, cover.number];
+			[self.layer addSublayer:cover.imageLayer];
 			[self layoutCover:cover 
 				   inPosition:i - newSelectedCover 
 				selectedCover:newSelectedCover 
