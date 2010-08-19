@@ -137,7 +137,6 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 }
 
 - (void)setUpInitialState {
-	NSLog(@"Setting initial state!");
 	[self resetDataState]; 
 	
 	self.multipleTouchEnabled = NO;
@@ -159,7 +158,6 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	CATransform3D sublayerTransform = CATransform3DIdentity;
 	sublayerTransform.m34 = -0.01;
 	[self.layer setSublayerTransform:sublayerTransform];
-	
 }
 
 - (AFItem *)coverForIndex:(NSInteger)coverIndex {
@@ -171,9 +169,10 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 		[self.allScreenCovers setObject:cover forKey:[NSNumber numberWithInt:coverIndex]];
 	} 
 	
-	if (! cover.imageLoaded) {	//Request we load in the image. 
+	if (! cover.imageRequested) {	//Request we load in the image. 
 		[cover setImage:self.defaultImage backingColor:self.backingColor];
 		[self.dataSource openFlowView:self requestImageForIndex:cover.number];	
+		cover.imageRequested = YES;
 	}
 	
 	return cover;
@@ -249,9 +248,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	aCover.imageLayer.transform = newTransform;
 	aCover.imageLayer.zPosition = newZPosition;
 	aCover.imageLayer.position = newPosition;
-	
-	NSLog(@"Cover: %@", aCover);
-	
+
 	if (animated) {
 		[UIView setAnimationDelegate:self];
 		[UIView setAnimationDidStopSelector:@selector(layoutCoverAnimationDidStop:finished:context:)];
@@ -282,6 +279,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 
 - (id)initWithFrame:(CGRect)frame {
 	if (self = [super initWithFrame:frame]) {
+		[self setDefaults];
 		[self setUpInitialState];
 	}
 	
@@ -327,8 +325,8 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	AFItem *cover = [self coverForIndex:index];
 	if (cover) {
 		[cover setImage:imageWithReflection backingColor:self.backingColor];
-		cover.imageLoaded = YES;
 	}
+	[self layoutCovers];
 }
 
 #pragma mark Touch management 
@@ -488,7 +486,6 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 				cover = [self coverForIndex:i];;
 				[onScreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
 				[self.layer addSublayer:cover.imageLayer];
-				cover.imageLayer.name = [NSString stringWithFormat:@"Cover %d:%d", i, cover.number];
 				NSInteger coverPos = 0; 
 				if (cover.number >= newSelectedCover - self.coverBuffer && 
 					cover.number <= newSelectedCover + self.coverBuffer) {

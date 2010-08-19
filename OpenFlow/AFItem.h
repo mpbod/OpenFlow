@@ -27,12 +27,12 @@
 
 @interface AFItem : NSObject {
 	CALayer *imageLayer; 
-	BOOL imageLoaded; 
+	BOOL imageRequested; 
 	NSInteger number;
 }
 
 @property (retain, nonatomic) CALayer *imageLayer;
-@property (assign, nonatomic) BOOL imageLoaded;
+@property (assign, nonatomic) BOOL imageRequested;
 @property (assign, nonatomic) NSInteger number; 
 
 - (void)setImage:(UIImage *)newImage

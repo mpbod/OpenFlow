@@ -29,7 +29,7 @@
 
 @implementation AFItem
 
-@synthesize imageLoaded; 
+@synthesize imageRequested; 
 @synthesize imageLayer;
 @synthesize number;
 
@@ -37,7 +37,7 @@
 	self = [super init];
 	if (self != nil) {
 		self.imageLayer = [CALayer layer]; 
-		self.imageLoaded = NO; 
+		self.imageRequested = NO; 
 	}
 	return self;
 }
