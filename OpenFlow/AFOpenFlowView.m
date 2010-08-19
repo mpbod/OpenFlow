@@ -197,7 +197,12 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 - (void)layoutCovers:(NSInteger)selected fromCover:(NSInteger)lowerBound toCover:(NSInteger)upperBound {
 	AFItem *cover;
 	NSNumber *coverNumber;
-
+	
+	NSInteger coverPos = lowerBound - selected;
+	if (coverPos > 0) {
+		coverPos = lowerBound - (self.numberOfImages + 1); 
+	}
+	
 	for (NSInteger i = lowerBound; i <= upperBound; i++) {
 		if (i < 0) {
 			coverNumber = [NSNumber numberWithInt:i + self.numberOfImages];
@@ -207,7 +212,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 			coverNumber = [NSNumber numberWithInt:i];
 		}
 		cover = (AFItem *)[self.onScreenCovers objectForKey:coverNumber];
-		[self layoutCover:cover inPosition:i selectedCover:selected animated:YES];
+		[self layoutCover:cover inPosition:coverPos++ selectedCover:selected animated:YES];
 	}
 }
 
@@ -223,22 +228,17 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	newPosition.x = (self.bounds.size.width / 2) + dragOffset;
 	newPosition.y = (self.bounds.size.height / 2) + (defaultImageHeight * self.coverHeightFraction);
 	
-	NSInteger distanceFromCenter = position - selectedIndex; 
-	newPosition.x += distanceFromCenter * self.centerCoverOffset; 
+	newPosition.x += position * self.centerCoverOffset; 
 	
-	if (position < selectedIndex) {
+	if (position < 0) {
 		newTransform = leftTransform; 
-	} else if (selectedIndex < position) {
+	} else if (position > 0) {
 		newTransform = rightTransform;
 	} else {
 		newZPosition = 0;
 		newTransform = CATransform3DIdentity;
 	}
-	
-	if (newPosition.x < -400 || newPosition.x > 900) {
-		NSLog(@"Cover %d Way out of position: %0.0f:%0.0f", aCover.number, newPosition.x, newPosition.y);
-	}
-	
+
 	if (animated) {
 		[UIView beginAnimations:nil context:nil];
 		[UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
@@ -436,18 +436,15 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	
 	if (self.continousLoop) {
 		if (selectedCoverIndex - self.coverBuffer >= 0 && selectedCoverIndex + self.coverBuffer < self.numberOfImages) {
-			NSLog(@"A");
 			onScreenCoversIndex = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(selectedCoverIndex - self.coverBuffer, (self.coverBuffer * 2 + 1))];
 		} else {
 			if (selectedCoverIndex - self.coverBuffer < 0) {
-				NSLog(@"B");
 				onScreenCoversIndex = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 
 																								selectedCoverIndex + self.coverBuffer + 1)];
 	
 				[onScreenCoversIndex addIndexesInRange:NSMakeRangeToIndex(self.numberOfImages + selectedCoverIndex - self.coverBuffer, self.numberOfImages - 1)]; //Covers at the end for loop 
 				
 			} else {
-				NSLog(@"C");
 				onScreenCoversIndex = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRangeToIndex(selectedCoverIndex - self.coverBuffer, 
 																								self.numberOfImages - 1)];
 				[onScreenCoversIndex addIndexesInRange:NSMakeRange(0, (selectedCoverIndex + self.coverBuffer) - self.numberOfImages + 1)]; //Covers at the start for loop
@@ -473,7 +470,6 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	}
 	
 	NSIndexSet *onScreenCoversIndex = [self coverIndexSetForSelectedCoverIndex:newSelectedCover]; 
-	NSLog(@"On screen index set (%d): %@", newSelectedCover, onScreenCoversIndex);
 	for (AFItem *cover in [self.onScreenCovers allValues]) {	//TODO: iOS4.0 enumerateKeysAndObjectsUsingBlock:
 		if (! [onScreenCoversIndex containsIndex:cover.number]) {
 			[cover.imageLayer removeFromSuperlayer];
