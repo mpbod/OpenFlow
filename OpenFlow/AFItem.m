@@ -22,18 +22,44 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-#import <UIKit/UIKit.h>
+#import "AFItem.h"
+#import <QuartzCore/QuartzCore.h>
+#import "AFOpenFlowConstants.h"
 
 
-@interface AFItemView : NSObject {
-	CALayer *imageLayer; 
-	NSInteger number;
+@implementation AFItem
+
+@synthesize imageLoaded; 
+@synthesize imageLayer;
+@synthesize number;
+
+- (id) init {
+	self = [super init];
+	if (self != nil) {
+		self.imageLayer = [CALayer layer]; 
+		self.imageLoaded = NO; 
+	}
+	return self;
 }
 
-@property (nonatomic, assign) NSInteger number; 
-@property (nonatomic, retain) CALayer *imageLayer;
-
 - (void)setImage:(UIImage *)newImage
-	backingColor:(UIColor *)backingColor;
+	backingColor:(UIColor *)backingColor {
+	
+	self.imageLayer.frame = CGRectMake(0, 0, newImage.size.width, newImage.size.height);
+	[self.imageLayer setContents:(id)[newImage CGImage]];
+	self.imageLayer.name = @"Image Layer";
+	self.imageLayer.backgroundColor = [backingColor CGColor];
+}
+
+- (NSString *)description {
+	return [NSString stringWithFormat:@"AFItemView - Cover %d layer position: %0.0f:%0.0f:%0.0f", self.number,
+			self.imageLayer.position.x, self.imageLayer.position.y, self.imageLayer.zPosition]; 
+}
+
+- (void)dealloc {
+	[self.imageLayer removeFromSuperlayer];
+	self.imageLayer = nil; 
+	[super dealloc];
+}
 
 @end
