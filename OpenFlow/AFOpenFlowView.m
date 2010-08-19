@@ -171,8 +171,8 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	
 	if (! cover.imageRequested) {	//Request we load in the image. 
 		[cover setImage:self.defaultImage backingColor:self.backingColor];
-		[self.dataSource openFlowView:self requestImageForIndex:cover.number];	
 		cover.imageRequested = YES;
+		[self.dataSource openFlowView:self requestImageForIndex:cover.number];	
 	}
 	
 	return cover;
