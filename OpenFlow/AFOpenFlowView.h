@@ -25,7 +25,7 @@
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
 
-#import "AFItemView.h"
+#import "AFItem.h"
 #import "AFOpenFlowViewDelegate.h"
 #import "AFOpenFlowViewDataSource.h"
 
@@ -48,17 +48,15 @@
 	
 	UIColor *backingColor;
 	
-	NSMutableSet *offScreenCovers;
+	NSMutableDictionary *allScreenCovers;
 	NSMutableDictionary *onScreenCovers;
-	//NSMutableDictionary	*coverImages;
-	//NSMutableDictionary	*coverImageHeights;
 	UIImage	*defaultImage;
 	CGFloat	defaultImageHeight;
     
 	NSInteger numberOfImages;
 	NSInteger beginningCover;
 	
-	AFItemView *selectedCoverView;
+	AFItem *selectedCoverView;
 	
 	CATransform3D leftTransform, rightTransform;
 	
@@ -87,14 +85,11 @@
 
 @property (nonatomic, retain) UIColor *backingColor; 
 
-@property (nonatomic, retain) NSMutableSet *offScreenCovers;
+@property (nonatomic, retain) NSMutableDictionary *allScreenCovers;
 @property (nonatomic, retain) NSMutableDictionary *onScreenCovers;
-//@property (nonatomic, retain) NSMutableDictionary *coverImages;
-//@property (nonatomic, retain) NSMutableDictionary *coverImageHeights;
-
 @property (nonatomic, retain) UIImage *defaultImage;
 @property NSInteger numberOfImages;
-@property (nonatomic, retain) AFItemView *selectedCoverView;
+@property (nonatomic, retain) AFItem *selectedCoverView;
 
 - (void)reloadData; 
 - (void)setSelectedCover:(NSInteger)newSelectedCover;

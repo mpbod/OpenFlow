@@ -33,15 +33,14 @@
 - (void)resetDataState;
 - (void)setDefaults;
 - (void)setUpInitialState;
-- (AFItemView *)coverForIndex:(NSInteger)coverIndex;
-- (void)updateCoverImage:(AFItemView *)aCover;
-- (AFItemView *)dequeueReusableCover;
+- (AFItem *)coverForIndex:(NSInteger)coverIndex;
+- (void)updateCoverImage:(AFItem *)aCover;
 - (void)layoutCovers:(int)selected fromCover:(NSInteger)lowerBound toCover:(NSInteger)upperBound;
-- (void)layoutCover:(AFItemView *)aCover 
+- (void)layoutCover:(AFItem *)aCover 
 		 inPosition:(NSInteger)position 
 	  selectedCover:(NSInteger)selectedIndex 
 		   animated:(Boolean)animated;
-- (AFItemView *)findCoverOnscreen:(CALayer *)targetLayer;
+- (AFItem *)findCoverOnscreen:(CALayer *)targetLayer;
 
 @end
 
@@ -67,10 +66,8 @@
 @synthesize defaultImage;
 @synthesize selectedCoverView;
 
-@synthesize offScreenCovers;
+@synthesize allScreenCovers;
 @synthesize onScreenCovers;
-@synthesize coverImages;
-@synthesize coverImageHeights;
 
 #pragma mark Utility Methods 
 
@@ -87,10 +84,8 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	self.defaultImage = nil; 
 	self.selectedCoverView = nil; 
 	
-	self.offScreenCovers = nil; 
+	self.allScreenCovers = nil; 
 	self.onScreenCovers = nil;
-	self.coverImages = nil; 
-	self.coverImageHeights = nil; 
 	
 	[super dealloc];
 }
@@ -108,7 +103,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	
 	//not sure why the layer is being left on the screen temp fix. 
 	for (UIView *view in self.subviews) {
-		if ([view isKindOfClass:[AFItemView class]]) {
+		if ([view isKindOfClass:[AFItem class]]) {
 			if (view.frame.origin.x + view.frame.size.width > 10.0) {
 				view.frame = CGRectZero;
 			}
@@ -122,25 +117,18 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	// Set up the default image for the coverflow.
 	self.defaultImage = [self.dataSource defaultImage];
 	
-	// Create data holders for onscreen & offscreen covers & UIImage objects.
-	self.coverImages = [[[NSMutableDictionary alloc] init] autorelease];
-	self.coverImageHeights = [[[NSMutableDictionary alloc] init] autorelease];
-	
-	if (self.offScreenCovers == nil) {
-		self.offScreenCovers = [[[NSMutableSet alloc] init] autorelease];
+	if (self.allScreenCovers == nil) {
+		self.allScreenCovers = [[[NSMutableDictionary alloc] init] autorelease];
 	}
 	
 	if (self.onScreenCovers == nil) {
 		self.onScreenCovers = [[[NSMutableDictionary alloc] init] autorelease];
 	} else {
-		for (AFItemView *cover in [self.onScreenCovers allValues]) {
+		for (AFItem *cover in [self.onScreenCovers allValues]) {
 			[cover.imageLayer removeFromSuperlayer]; 
-			[self.offScreenCovers addObject:cover];
 		}
 		[self.onScreenCovers removeAllObjects];
 	}
-		
-	
 }
 
 - (void)setDefaults {
@@ -183,37 +171,27 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	[self setBounds:self.frame];
 }
 
-- (AFItemView *)coverForIndex:(NSInteger)coverIndex {
-	AFItemView *coverView = [self dequeueReusableCover];
+- (AFItem *)coverForIndex:(NSInteger)coverIndex {
+	AFItem *cover = [self.allScreenCovers objectForKey:[NSNumber numberWithInt:coverIndex]];
 	
-	if (!coverView) {
-		coverView = [[[AFItemView alloc] init] autorelease];
-	} else {
-		NSLog(@"Recycled Cover View: %@", coverView);
+	if (!cover) {
+		cover = [[[AFItem alloc] init] autorelease];
+		cover.number = coverIndex;
+		[self.allScreenCovers setObject:cover forKey:[NSNumber numberWithInt:coverIndex]];
+	} 
+	
+	if (! cover.imageLoaded) {	//Request we load in the image. 
+		[cover setImage:self.defaultImage backingColor:self.backingColor];
+		[self.dataSource openFlowView:self requestImageForIndex:cover.number];	
 	}
 	
-	coverView.number = coverIndex;
-	return coverView;
-}
-
-- (void)updateCoverImage:(AFItemView *)aCover {
-	NSNumber *coverNumber = [NSNumber numberWithInt:aCover.number];
-	UIImage *coverImage = (UIImage *)[coverImages objectForKey:coverNumber];
-	if (coverImage) {
-		NSNumber *coverImageHeightNumber = (NSNumber *)[coverImageHeights objectForKey:coverNumber];
-		if (coverImageHeightNumber) {
-			[aCover setImage:coverImage backingColor:self.backingColor];
-		}
-	} else {
-		[aCover setImage:self.defaultImage backingColor:self.backingColor];
-		[self.dataSource openFlowView:self requestImageForIndex:aCover.number];
-	}
+	return cover;
 }
 
 #pragma mark Cover Layout Code!
 
 - (void)layoutCovers:(NSInteger)selected fromCover:(NSInteger)lowerBound toCover:(NSInteger)upperBound {
-	AFItemView *cover;
+	AFItem *cover;
 	NSNumber *coverNumber;
 	for (NSInteger i = lowerBound; i <= upperBound; i++) {
 		if (i < 0) {
@@ -223,12 +201,12 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 		} else {
 			coverNumber = [NSNumber numberWithInt:i];
 		}
-		cover = (AFItemView *)[self.onScreenCovers objectForKey:coverNumber];
+		cover = (AFItem *)[self.onScreenCovers objectForKey:coverNumber];
 		[self layoutCover:cover inPosition:i selectedCover:selected animated:YES];
 	}
 }
 
-- (void)layoutCover:(AFItemView *)aCover 
+- (void)layoutCover:(AFItem *)aCover 
 		 inPosition:(NSInteger)position 
 	  selectedCover:(NSInteger)selectedIndex 
 		   animated:(Boolean)animated {
@@ -275,22 +253,12 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	}
 }
 
-
-- (AFItemView *)dequeueReusableCover {
-	AFItemView *aCover = [offScreenCovers anyObject];
-	if (aCover) {
-		[[aCover retain] autorelease];
-		[offScreenCovers removeObject:aCover];
-	}
-	return aCover;
-}
-
-- (AFItemView *)findCoverOnscreen:(CALayer *)targetLayer {
+- (AFItem *)findCoverOnscreen:(CALayer *)targetLayer {
 	// See if this layer is one of our covers.
 	NSEnumerator *coverEnumerator = [onScreenCovers objectEnumerator];
-	AFItemView *aCover = nil;
+	AFItem *aCover = nil;
 	
-	while (aCover = (AFItemView *)[coverEnumerator nextObject]) {
+	while (aCover = (AFItem *)[coverEnumerator nextObject]) {
 		if ([aCover.imageLayer isEqual:targetLayer]) {
 			return aCover;
 		}
@@ -355,15 +323,11 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 - (void)setImage:(UIImage *)image forIndex:(NSInteger)index {
 	// Create a reflection for this image.
 	UIImage *imageWithReflection = [image addImageReflection:self.reflectionFraction];
-	NSNumber *coverNumber = [NSNumber numberWithInt:index];
-	[coverImages setObject:imageWithReflection forKey:coverNumber];
-	[coverImageHeights setObject:[NSNumber numberWithFloat:image.size.height] forKey:coverNumber];
-	
-	// If this cover is onscreen, set its image and call layoutCover.
-	AFItemView *aCover = (AFItemView *)[onScreenCovers objectForKey:[NSNumber numberWithInt:index]];
-	if (aCover) {
-		[aCover setImage:imageWithReflection backingColor:self.backingColor];
-		[self layoutCover:aCover inPosition:aCover.number selectedCover:selectedCoverView.number animated:NO];
+
+	AFItem *cover = [self coverForIndex:index];
+	if (cover) {
+		[cover setImage:imageWithReflection backingColor:self.backingColor];
+		cover.imageLoaded = YES;
 	}
 }
 
@@ -376,7 +340,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	
 	// Which cover did the user tap?
 	CALayer *targetLayer = (CALayer *)[self.layer hitTest:startPoint];
-	AFItemView *targetCover = [self findCoverOnscreen:targetLayer];
+	AFItem *targetCover = [self findCoverOnscreen:targetLayer];
 	isDraggingACover = (targetCover != nil);
 
 	beginningCover = selectedCoverView.number;
@@ -434,7 +398,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 		// Which cover did the user tap?
 		CGPoint targetPoint = [[touches anyObject] locationInView:self];
 		CALayer *targetLayer = (CALayer *)[self.layer hitTest:targetPoint];
-		AFItemView *targetCover = [self findCoverOnscreen:targetLayer];
+		AFItem *targetCover = [self findCoverOnscreen:targetLayer];
 		if (targetCover && (targetCover.number != selectedCoverView.number)) {
 			[self setSelectedCover:targetCover.number];
 		}
@@ -510,9 +474,8 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	
 	NSIndexSet *onScreenCoversIndex = [self coverIndexForSelectedCoverIndex:newSelectedCover]; 
 	
-	for (AFItemView *cover in [self.onScreenCovers allValues]) {	//TODO: iOS4.0 enumerateKeysAndObjectsUsingBlock:
+	for (AFItem *cover in [self.onScreenCovers allValues]) {	//TODO: iOS4.0 enumerateKeysAndObjectsUsingBlock:
 		if (! [onScreenCoversIndex containsIndex:cover.number]) {
-			[self.offScreenCovers addObject:cover];
 			[cover.imageLayer removeFromSuperlayer];
 			[self.onScreenCovers removeObjectForKey:[NSNumber numberWithInt:cover.number]];
 		}
@@ -522,12 +485,14 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 		//Check to see if the cover is already in the covers list
 		if ([onScreenCoversIndex containsIndex:i]) { //TODO: Implement using enumerateIndexesUsingBlock: iOS 4.0 only!
 			//Add to screen. 
-			AFItemView *cover = [onScreenCovers objectForKey:[NSNumber numberWithInt:i]];
+			AFItem *cover = [onScreenCovers objectForKey:[NSNumber numberWithInt:i]];
 			if (cover == nil) {
 				cover = [self coverForIndex:i];;
 				[onScreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
 			}
-			[self updateCoverImage:cover];
+			if (! cover.imageLoaded) {
+				[self updateCoverImage:cover];
+			}
 			cover.imageLayer.name = [NSString stringWithFormat:@"Cover %d:%d", i, cover.number];
 			[self.layer addSublayer:cover.imageLayer];
 			[self layoutCover:cover 
