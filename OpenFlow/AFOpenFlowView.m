@@ -34,7 +34,6 @@
 - (void)setDefaults;
 - (void)setUpInitialState;
 - (AFItem *)coverForIndex:(NSInteger)coverIndex;
-- (void)updateCoverImage:(AFItem *)aCover;
 - (void)layoutCovers:(int)selected fromCover:(NSInteger)lowerBound toCover:(NSInteger)upperBound;
 - (void)layoutCover:(AFItem *)aCover 
 		 inPosition:(NSInteger)position 
@@ -490,9 +489,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 				cover = [self coverForIndex:i];;
 				[onScreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
 			}
-			if (! cover.imageLoaded) {
-				[self updateCoverImage:cover];
-			}
+			
 			cover.imageLayer.name = [NSString stringWithFormat:@"Cover %d:%d", i, cover.number];
 			[self.layer addSublayer:cover.imageLayer];
 			[self layoutCover:cover 
