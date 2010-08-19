@@ -99,15 +99,6 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 		[self setDefaults]; // This is needed or you will get errors loading from a nib!
 		[self reloadData];
 	}
-	
-	//not sure why the layer is being left on the screen temp fix. 
-	for (UIView *view in self.subviews) {
-		if ([view isKindOfClass:[AFItem class]]) {
-			if (view.frame.origin.x + view.frame.size.width > 10.0) {
-				view.frame = CGRectZero;
-			}
-		}
-	}
 }
 
 #pragma mark Hidden Implementation details
@@ -283,6 +274,8 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 }
 
 - (void) layoutSubviews {	
+	NSLog(@"Laying out sublayers: %@", self.layer.sublayers); 	
+	
 	if (self.continousLoop) {
 		[self layoutCovers:self.selectedCoverView.number 
 				 fromCover:self.selectedCoverView.number - self.coverBuffer 
