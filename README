@@ -12,7 +12,7 @@ To use this in your own project:
 -Import “AFOpenFlowView.h” & interact with it as you would a normal UIView.
 -You should implement both the AFOpenFlowViewDelegate and AFOpenFlowViewDataSource protocols.
 
-Currently, the delegate protocol is used to let your code know when the user selected a new object. The datasource protocol is called when AFOpenFlowView needs a UIImage object. This method should be *fast*. Don’t do NSURL requests or even disk access in this method. See the AFOpenFlowDemo app I provided for an example how to load images from a remote server. The datasource also needs to provide a default UIImage.
+Currently, the delegate protocol is used to let your code know when the user selected a new object. The datasource protocol is called when AFOpenFlowView needs a UIImage object. This method should be *fast*. Don’t do NSURL requests or even disk access in this method. See the AFOpenFlowDemo app I provided for an example how to load images from a remote server. 
 
 At any point, you can set UIImage’s on your AFOpenFlowView. You don’t need to wait for the datasource protocol to ask you. Your AFOpenFlowView will start displaying images as soon as you call setNumberOfImages.
 
