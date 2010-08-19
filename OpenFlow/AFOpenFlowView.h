@@ -43,7 +43,7 @@
 	NSInteger coverBuffer; 
 	CGFloat dragDivisor; 
 	CGFloat reflectionFraction; 
-	CGFloat coverHeightFraction; 
+	CGFloat coverHeightOffset; 
 	CGFloat coverImageSize; 
 	
 	UIColor *backingColor;
@@ -80,7 +80,7 @@
 @property (nonatomic, assign) NSInteger coverBuffer; 
 @property (nonatomic, assign) CGFloat dragDivisor; 
 @property (nonatomic, assign) CGFloat reflectionFraction; 
-@property (nonatomic, assign) CGFloat coverHeightFraction; 
+@property (nonatomic, assign) CGFloat coverHeightOffset; 
 @property (nonatomic, assign) CGFloat coverImageSize; 
 
 @property (nonatomic, retain) UIColor *backingColor; 

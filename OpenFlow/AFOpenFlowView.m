@@ -57,7 +57,7 @@
 @synthesize coverBuffer; 
 @synthesize dragDivisor; 
 @synthesize reflectionFraction; 
-@synthesize coverHeightFraction; 
+@synthesize coverHeightOffset; 
 @synthesize coverImageSize; 
 
 @synthesize backingColor; 
@@ -130,7 +130,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	self.coverBuffer = COVER_BUFFER;
 	self.dragDivisor = DRAG_DIVISOR;
 	self.reflectionFraction = REFLECTION_FRACTION;
-	self.coverHeightFraction = COVER_HEIGHT_FRACTION;
+	self.coverHeightOffset = COVER_HEIGHT_OFFSET;
 	self.coverImageSize = COVER_IMAGE_SIZE; //TODO: Check this might not be used. 
 	
 	self.backingColor = self.backgroundColor; 
@@ -226,7 +226,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	CGPoint newPosition;
 	
 	newPosition.x = (self.bounds.size.width / 2) + dragOffset;
-	newPosition.y = (self.bounds.size.height / 2) + (defaultImageHeight * self.coverHeightFraction);
+	newPosition.y = (self.bounds.size.height / 2) + self.coverHeightOffset;
 	
 	newPosition.x += position * self.centerCoverOffset; 
 	

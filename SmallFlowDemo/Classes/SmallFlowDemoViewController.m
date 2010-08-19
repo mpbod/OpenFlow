@@ -26,16 +26,13 @@
     [super viewDidLoad];
     
     // Load the sample images
-    NSString *imageName;
+	[self.smallOpenFlowView setViewDelegate:self];
     for (int i=0; i < 30; i++) {
-        imageName = [[NSString alloc] initWithFormat:@"%d.jpg", i];
-        [smallOpenFlowView_ setImage:[UIImage imageNamed:imageName] forIndex:i];
-        [imageName release];
+        [self.smallOpenFlowView setImage:[UIImage imageNamed:[NSString stringWithFormat:@"%d.jpg", i]] forIndex:i];
     }
-    [smallOpenFlowView_ setNumberOfImages:30];   
-    [smallOpenFlowView_ setViewDelegate:self];
+    [self.smallOpenFlowView setNumberOfImages:30];   
+	self.smallOpenFlowView.coverHeightOffset = 12.0;
 }
-
 
 /*
 // Override to allow orientations other than the default portrait orientation.
