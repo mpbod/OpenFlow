@@ -137,6 +137,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 }
 
 - (void)setUpInitialState {
+	NSLog(@"Setting initial state!");
 	[self resetDataState]; 
 	
 	self.multipleTouchEnabled = NO;
@@ -248,6 +249,8 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	aCover.imageLayer.transform = newTransform;
 	aCover.imageLayer.zPosition = newZPosition;
 	aCover.imageLayer.position = newPosition;
+	
+	NSLog(@"Cover: %@", aCover);
 	
 	if (animated) {
 		[UIView setAnimationDelegate:self];
