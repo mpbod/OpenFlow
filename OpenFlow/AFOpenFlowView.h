@@ -50,8 +50,8 @@
 	
 	NSMutableSet *offScreenCovers;
 	NSMutableDictionary *onScreenCovers;
-	NSMutableDictionary	*coverImages;
-	NSMutableDictionary	*coverImageHeights;
+	//NSMutableDictionary	*coverImages;
+	//NSMutableDictionary	*coverImageHeights;
 	UIImage	*defaultImage;
 	CGFloat	defaultImageHeight;
     
@@ -89,8 +89,8 @@
 
 @property (nonatomic, retain) NSMutableSet *offScreenCovers;
 @property (nonatomic, retain) NSMutableDictionary *onScreenCovers;
-@property (nonatomic, retain) NSMutableDictionary *coverImages;
-@property (nonatomic, retain) NSMutableDictionary *coverImageHeights;
+//@property (nonatomic, retain) NSMutableDictionary *coverImages;
+//@property (nonatomic, retain) NSMutableDictionary *coverImageHeights;
 
 @property (nonatomic, retain) UIImage *defaultImage;
 @property NSInteger numberOfImages;

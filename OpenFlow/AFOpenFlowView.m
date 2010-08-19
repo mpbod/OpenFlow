@@ -188,6 +188,8 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	
 	if (!coverView) {
 		coverView = [[[AFItemView alloc] init] autorelease];
+	} else {
+		NSLog(@"Recycled Cover View: %@", coverView);
 	}
 	
 	coverView.number = coverIndex;
@@ -249,6 +251,12 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 		newZPosition = 0;
 		newTransform = CATransform3DIdentity;
 	}
+	
+	if (aCover.imageLayer.position.x < newPosition.x) {
+		NSLog(@"Moving %d from %0.0f:%0.0f to %0.0f:%0.0f", aCover.number, aCover.imageLayer.position.x, aCover.imageLayer.position.y, 
+			  newPosition.x, newPosition.y);
+	}
+	
 	
 	if (animated) {
 		[UIView beginAnimations:nil context:nil];
