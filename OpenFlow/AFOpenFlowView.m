@@ -239,21 +239,25 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 		newTransform = CATransform3DIdentity;
 	}
 
-	if (animated) {
-		[UIView beginAnimations:nil context:nil];
-		[UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
-		[UIView setAnimationBeginsFromCurrentState:YES];
-	}
-
-	aCover.imageLayer.transform = newTransform;
-	aCover.imageLayer.zPosition = newZPosition;
-	aCover.imageLayer.position = newPosition;
-
-	if (animated) {
-		[UIView setAnimationDelegate:self];
-		[UIView setAnimationDidStopSelector:@selector(layoutCoverAnimationDidStop:finished:context:)];
-		[UIView commitAnimations];
-	}
+	[CATransaction begin];
+		if (animated) {
+			[CATransaction setValue:[NSNumber numberWithFloat:0.01f] forKey:kCATransactionAnimationDuration];
+		} else {
+			[CATransaction setValue:[NSNumber numberWithFloat:0.00f] forKey:kCATransactionAnimationDuration];
+		}
+		aCover.imageLayer.position = newPosition;
+	[CATransaction commit];
+	
+	
+	[CATransaction begin];
+		if (animated) {
+			[CATransaction setValue:[NSNumber numberWithFloat:0.25f] forKey:kCATransactionAnimationDuration];
+		} else {
+			[CATransaction setValue:[NSNumber numberWithFloat:0.00f] forKey:kCATransactionAnimationDuration];
+		}
+		aCover.imageLayer.transform = newTransform;
+		aCover.imageLayer.zPosition = newZPosition;
+	[CATransaction commit];
 }
 
 - (AFItem *)findCoverOnscreen:(CALayer *)targetLayer {
@@ -366,18 +370,22 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	if (newCoverDiff != 0) { 
 		NSInteger newSelectedCover = selectedCoverAtDragStart + newCoverDiff;
 		
-		if (self.continousLoop) {
-			[self setSelectedCover:newSelectedCover];
+		if (newSelectedCover == self.selectedCoverView.number) {
+			[self layoutCovers]; 
 		} else {
-			if (newSelectedCover < 0) {
-				[self setSelectedCover:0];
-			} else if (newSelectedCover >= self.numberOfImages) {
-				[self setSelectedCover:self.numberOfImages - 1];
-			} else {
+			if (self.continousLoop) {
 				[self setSelectedCover:newSelectedCover];
+			} else {
+				if (newSelectedCover < 0) {
+					[self setSelectedCover:0];
+				} else if (newSelectedCover >= self.numberOfImages) {
+					[self setSelectedCover:self.numberOfImages - 1];
+				} else {
+					[self setSelectedCover:newSelectedCover];
+				}
 			}
 		}
-	} else {	//SetSelectedCover calls layoutCovers
+	} else {
 		[self layoutCovers]; 
 	}
 		
