@@ -69,27 +69,27 @@
 	CGPoint startPoint;
 }
 
-@property (nonatomic, assign) id <AFOpenFlowViewDataSource> dataSource;
-@property (nonatomic, assign) id <AFOpenFlowViewDelegate> viewDelegate;
+@property (assign, nonatomic) id <AFOpenFlowViewDataSource> dataSource;
+@property (assign, nonatomic) id <AFOpenFlowViewDelegate> viewDelegate;
 
-@property (nonatomic, assign) BOOL continousLoop; 
-@property (nonatomic, assign) CGFloat coverSpacing; 
-@property (nonatomic, assign) CGFloat centerCoverOffset; 
-@property (nonatomic, assign) CGFloat sideCoverAngle; 
-@property (nonatomic, assign) CGFloat sideCoverZPosition; 
-@property (nonatomic, assign) NSInteger coverBuffer; 
-@property (nonatomic, assign) CGFloat dragDivisor; 
-@property (nonatomic, assign) CGFloat reflectionFraction; 
-@property (nonatomic, assign) CGFloat coverHeightOffset; 
-@property (nonatomic, assign) CGFloat coverImageSize; 
+@property (assign, nonatomic) BOOL continousLoop; 
+@property (assign, nonatomic) CGFloat coverSpacing; 
+@property (assign, nonatomic) CGFloat centerCoverOffset; 
+@property (assign, nonatomic) CGFloat sideCoverAngle; 
+@property (assign, nonatomic) CGFloat sideCoverZPosition; 
+@property (assign, nonatomic) NSInteger coverBuffer; 
+@property (assign, nonatomic) CGFloat dragDivisor; 
+@property (assign, nonatomic) CGFloat reflectionFraction; 
+@property (assign, nonatomic) CGFloat coverHeightOffset; 
+@property (assign, nonatomic) CGFloat coverImageSize; 
 
-@property (nonatomic, retain) UIColor *backingColor; 
+@property (retain, nonatomic) UIColor *backingColor; 
 
-@property (nonatomic, retain) NSMutableDictionary *allScreenCovers;
-@property (nonatomic, retain) NSMutableDictionary *onScreenCovers;
-@property (nonatomic, retain) UIImage *defaultImage;
+@property (retain, nonatomic) NSMutableDictionary *allScreenCovers;
+@property (retain, nonatomic) NSMutableDictionary *onScreenCovers;
+@property (retain, nonatomic) UIImage *defaultImage;
 @property NSInteger numberOfImages;
-@property (nonatomic, retain) AFItem *selectedCoverView;
+@property (retain, nonatomic) AFItem *selectedCoverView;
 
 - (void)reloadData; 
 - (void)setSelectedCover:(NSInteger)newSelectedCover;

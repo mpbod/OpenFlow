@@ -27,7 +27,6 @@
 #import "AFUIImageReflection.h"
 
 
-
 @interface AFOpenFlowView (hidden)
 
 - (void)resetDataState;
