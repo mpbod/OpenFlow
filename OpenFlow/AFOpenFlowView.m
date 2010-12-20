@@ -240,7 +240,7 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 
 	[CATransaction begin];
 		if (animated) {
-			[CATransaction setValue:[NSNumber numberWithFloat:0.01f] forKey:kCATransactionAnimationDuration];
+			[CATransaction setValue:[NSNumber numberWithFloat:0.1f] forKey:kCATransactionAnimationDuration];
 		} else {
 			[CATransaction setValue:[NSNumber numberWithFloat:0.00f] forKey:kCATransactionAnimationDuration];
 		}
