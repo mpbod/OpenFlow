@@ -109,6 +109,10 @@ NS_INLINE NSRange NSMakeRangeToIndex(NSUInteger loc, NSUInteger loc2) {
 	
 	if (self.allScreenCovers == nil) {
 		self.allScreenCovers = [[[NSMutableDictionary alloc] init] autorelease];
+	} else {
+		for (int i = 0; i < [self.allScreenCovers count]; i++) {
+			[[self.allScreenCovers objectForKey:[NSNumber numberWithInt:i]] setImageRequested:NO];
+		}
 	}
 	
 	if (self.onScreenCovers == nil) {

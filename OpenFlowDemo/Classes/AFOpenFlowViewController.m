@@ -61,7 +61,7 @@
 }
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
-	self.openFlowView.continousLoop = YES; 
+	self.openFlowView.continousLoop = NO; 
 	[(AFOpenFlowView *)self.view reloadData];
 	
 	
